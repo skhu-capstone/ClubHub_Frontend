@@ -33,3 +33,13 @@ test("rejects incomplete or inconsistent results rather than saving partial orde
     return { content: [{ postId: 1 }], totalPages: 2 };
   }), /Network error/);
 });
+
+test("rejects missing posts and membership changes while collecting pages", async () => {
+  await assert.rejects(collectClubPosts(async () => ({
+    content: [{ postId: 1 }], totalPages: 1, totalElements: 2,
+  })));
+  await assert.rejects(collectClubPosts(async (page) => ({
+    content: [{ postId: page + 1 }], totalPages: 2, totalElements: page === 0 ? 2 : 3,
+  })));
+  await assert.rejects(collectClubPosts(async () => ({ content: [], totalPages: "2" })));
+});

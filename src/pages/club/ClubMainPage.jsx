@@ -148,8 +148,8 @@ export default function ClubMainPage() {
 
   const isRoleResolved = !isMembersLoading && !isMembersError;
   const isPresident = isRoleResolved && myRole === "PRESIDENT";
-  const isOrderingPosts = isPresident && orderingClubId === selectedClubId && activeTab === "feeds";
   const canManageClub = isRoleResolved && ["PRESIDENT", "STAFF"].includes(myRole);
+  const isOrderingPosts = canManageClub && orderingClubId === selectedClubId && activeTab === "feeds";
 
   const {
     data: postsData,
@@ -566,7 +566,7 @@ export default function ClubMainPage() {
         </header>
 
         {/* 조건부로 렌더링 -> 피드 or 멤버 or 캘린더 */}
-        {activeTab === "feeds" && isPresident && !isOrderingPosts && (
+        {activeTab === "feeds" && canManageClub && !isOrderingPosts && (
           <div className="mt-4 flex justify-end sm:mt-5">
             <button type="button" onClick={() => setOrderingClubId(selectedClubId)}
               className="w-full rounded-xl border border-sky-700/30 bg-white px-5 py-3 text-sm font-semibold text-sky-700 hover:bg-sky-50 dark:border-theme-focus dark:bg-theme-surface dark:text-theme-link dark:hover:bg-theme-accent-hover sm:w-auto">

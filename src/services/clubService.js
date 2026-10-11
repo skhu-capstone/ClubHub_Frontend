@@ -153,7 +153,7 @@ export const getClubPosts = async ({ clubId, page = 0, size = 4 }) => {
   return response.data.data;
 };
 
-// Proposed backend contract: docs/club-post-order-api.md
+// PATCH /api/clubs/{clubId}/posts/order — 대표 및 운영진, 전체 게시글 ID 필요
 export const updateClubPostOrder = async ({ clubId, postIds }) => {
   const response = await axios.patch(
     `${BASE_URL}/api/clubs/${clubId}/posts/order`,
