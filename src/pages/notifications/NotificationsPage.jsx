@@ -159,10 +159,10 @@ export default function NotificationsPage() {
       <section className="mx-auto max-w-3xl" ref={listTopRef}>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-theme-text sm:text-3xl">알림</h1>
-            <p className="mt-2 text-sm text-slate-500 dark:text-theme-muted" aria-live="polite">
-              {query.data ? `읽지 않은 알림 ${unreadCount}개` : "새로운 소식을 확인해보세요."}
-            </p>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-theme-text sm:text-3xl">알림</h1>
+              <p className="text-xs text-slate-500 dark:text-theme-muted">읽은 알림은 30일간 보관 뒤 자동 삭제됩니다.</p>
+            </div>
           </div>
           <button type="button" onClick={handleReadAll} disabled={pending || !query.data || unreadCount === 0}
             className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-theme-border-strong dark:bg-theme-surface dark:text-theme-secondary dark:hover:bg-theme-hover">
@@ -171,6 +171,9 @@ export default function NotificationsPage() {
           </button>
         </div>
         {actionError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-600 dark:bg-theme-danger-bg dark:text-theme-danger">{actionError}</p>}
+        <p className="mb-2 text-sm text-slate-500 dark:text-theme-muted" aria-live="polite">
+          {query.data ? `읽지 않은 알림 ${unreadCount}개` : "새로운 소식을 확인해보세요."}
+        </p>
         {query.isPending ? (
           <div role="status" className="flex min-h-64 items-center justify-center gap-2 text-slate-500 dark:text-theme-muted"><Loader2 className="animate-spin" size={20} />알림을 불러오는 중입니다...</div>
         ) : query.isError ? (
