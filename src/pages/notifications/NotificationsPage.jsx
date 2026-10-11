@@ -65,7 +65,7 @@ export default function NotificationsPage() {
   const listTopRef = useRef(null);
   const query = useQuery({
     queryKey: ["notifications", userId, page],
-    queryFn: ({ signal }) => getNotifications({ page, size: 20, signal }),
+    queryFn: ({ signal }) => getNotifications({ page, size: 10, signal }),
     enabled: userId != null,
     retry: (count, error) => !error.authExpired && error.status !== 403 && count < 1,
   });

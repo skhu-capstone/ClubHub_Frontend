@@ -9,7 +9,7 @@ test("notification API uses the four documented authenticated endpoints and acce
   try {
     const controller = new AbortController();
     for (const [path, method, invoke, expected] of [
-      ["?page=2&size=20", "GET", () => getNotifications({ page: 2, signal: controller.signal }), { content: [], unreadCount: 7 }],
+      ["?page=2&size=10", "GET", () => getNotifications({ page: 2, signal: controller.signal }), { content: [], unreadCount: 7 }],
       ["/unread-count", "GET", () => getNotificationUnreadCount(), { unreadCount: 7 }],
       ["/31/read", "PATCH", () => readNotification(31), undefined],
       ["/read-all", "PATCH", () => readAllNotifications(), undefined],

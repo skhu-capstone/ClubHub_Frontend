@@ -2,7 +2,7 @@
 
 기준: `프엔 연동 가이드.pdf` (백엔드 이슈 #91).
 
-- 알림 목록: `GET /api/notifications?page=0&size=20`
+- 알림 목록: `GET /api/notifications?page=0&size=10` (페이지당 10개, 11개부터 다음 페이지)
 - 배지: `GET /api/notifications/unread-count`, 30초 폴링. 알림 화면에서는 중지하고 목록의 `unreadCount`를 사용한다.
 - 개별 읽음: `PATCH /api/notifications/{notificationId}/read`
 - 전체 읽음: `PATCH /api/notifications/read-all`

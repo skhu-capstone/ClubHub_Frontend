@@ -38,7 +38,7 @@ async function request(path, { method = "GET", signal } = {}) {
   return body?.data;
 }
 
-export async function getNotifications({ page = 0, size = 20, signal } = {}) {
+export async function getNotifications({ page = 0, size = 10, signal } = {}) {
   const data = await request(`?${new URLSearchParams({ page, size })}`, { signal });
   return data && {
     ...data,
