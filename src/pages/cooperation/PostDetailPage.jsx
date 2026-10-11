@@ -37,11 +37,11 @@ function DetailLayout({
 }) {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-theme-page flex flex-col">
-      <div className="w-full bg-slate-200 dark:bg-theme-raised flex items-center justify-between px-4 h-12">
+      <div className="w-full bg-slate-200 dark:bg-theme-raised flex items-center justify-between gap-3 px-3 sm:px-4 min-h-14 py-1">
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-300 dark:hover:bg-theme-hover transition-colors duration-150 cursor-pointer"
+            className="flex items-center justify-center w-11 h-11 rounded-full hover:bg-slate-300 dark:hover:bg-theme-hover transition-colors duration-150 cursor-pointer"
             aria-label="뒤로가기"
           >
             <ArrowLeft size={18} strokeWidth={2} className="text-gray-600 dark:text-theme-secondary" />
@@ -54,28 +54,28 @@ function DetailLayout({
             {dday}
           </span>
         </div>
-        <span className="text-sm font-medium text-gray-600 dark:text-theme-secondary pr-1">
+        <span className="min-w-0 truncate text-sm font-medium text-gray-600 dark:text-theme-secondary pr-1">
           {clubLabel}
         </span>
       </div>
 
-      <main className="flex-1 flex items-start justify-center px-4 pt-16 pb-8">
+      <main className="flex-1 flex items-start justify-center px-4 py-6 sm:px-6 sm:pt-12 sm:pb-8 lg:pt-16">
         <div className="w-full max-w-xl bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow overflow-hidden">
           <SafeImage src={imageUrl} getSrc={getContentImageUrl}
-            fallbackSrc="" alt="모집 이미지" className="w-full h-75 object-cover" />
+            fallbackSrc="" alt="모집 이미지" className="w-full h-48 sm:h-75 object-cover" />
 
-          <div className="px-6 py-6 flex flex-col gap-4">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-theme-text leading-snug">
+          <div className="px-4 py-5 sm:px-6 sm:py-6 flex flex-col gap-4">
+            <h1 className="[overflow-wrap:anywhere] text-lg sm:text-xl font-bold text-gray-900 dark:text-theme-text leading-snug">
               {title}
             </h1>
 
             <div className="flex flex-col gap-2">
               {fields.map(({ label, value }) => (
-                <div key={label} className="flex gap-4">
+                <div key={label} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
                   <span className="text-sm text-gray-400 dark:text-theme-muted w-20 shrink-0">
                     {label}
                   </span>
-                  <span className="text-sm text-gray-800 dark:text-theme-text whitespace-pre-wrap break-words">{value}</span>
+                  <span className="min-w-0 text-sm text-gray-800 dark:text-theme-text whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{value}</span>
                 </div>
               ))}
             </div>
@@ -107,7 +107,7 @@ function LoadingView() {
 
 function ErrorView({ message, onBack }) {
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-theme-page flex flex-col items-center justify-center gap-3">
+    <div className="min-h-screen bg-slate-100 dark:bg-theme-page flex flex-col items-center justify-center gap-3 px-4 text-center">
       <AlertCircle size={24} className="text-red-300 dark:text-theme-danger" strokeWidth={1.5} />
       <p className="text-sm text-gray-400 dark:text-theme-muted">{message}</p>
       <button
@@ -140,6 +140,10 @@ function ClubPostDetail({ id, onBack }) {
             headers: { ...authHeader() },
           }
         );
+        if (res.status === 404) {
+          setError("삭제된 게시글입니다.");
+          return;
+        }
         const data = await res.json();
         if (data.success) {
           setPost(data.data);
@@ -239,6 +243,10 @@ function ProjectPostDetail({ id, onBack }) {
             headers: { ...authHeader() },
           }
         );
+        if (res.status === 404) {
+          setError("삭제된 게시글입니다.");
+          return;
+        }
         const data = await res.json();
         if (data.success) {
           setPost(data.data);
@@ -277,7 +285,7 @@ function ProjectPostDetail({ id, onBack }) {
       const res = await fetch(`${API_BASE_URL}/api/chat/rooms`, {
         method: "POST",
         headers: { "Content-Type": "application/json", ...authHeader() },
-        body: JSON.stringify({ targetUserId: post.writerId }),
+        body: JSON.stringify({ targetUserId: post.writerId, source: "PROJECT_RECRUITMENT", sourceId: Number(id) }),
       });
       const data = await res.json();
       if (data.success) {

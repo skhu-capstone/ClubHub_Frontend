@@ -65,6 +65,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex w-full flex-col items-center overflow-x-clip bg-linear-to-br from-slate-50 via-slate-50 to-slate-300 px-4 pt-6 pb-8 dark:from-theme-page dark:via-theme-page dark:to-theme-accent md:px-6 md:pt-12 md:pb-14">
+      {location.state?.message && <p role="alert" className="mb-5 w-full max-w-md rounded-xl bg-amber-50 p-4 text-center text-sm text-amber-800 dark:bg-theme-warning-bg dark:text-theme-warning">{location.state.message}</p>}
       <section className="mb-8 w-full max-w-7xl text-center md:mb-10">
         <h1 className="mx-auto max-w-4xl text-balance text-3xl font-bold leading-10 text-neutral-800 dark:text-theme-text md:text-5xl md:leading-tight lg:text-7xl">
           같은 학교, 더 가까운 연결

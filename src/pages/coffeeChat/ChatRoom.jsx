@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Coffee, Loader2, AlertCircle } from "lucide-react";
+import { Send, Coffee, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { useChatSocket } from "../../hooks/useChatSocket";
 import CoffeeChatAvatar from "../../components/common/CoffeeChatAvatar";
 
@@ -55,11 +55,11 @@ function MessageBubble({ msg, isMine, showAvatar, senderName, room }) {
   if (isMine) {
     return (
       <div className="flex justify-end items-end gap-1.5 mb-1 px-4">
-        <span className="text-xs text-gray-300 dark:text-theme-muted self-end mb-0.5">
+        <span className="shrink-0 text-xs text-gray-300 dark:text-theme-muted self-end mb-0.5">
           {formatMessageTime(msg.createdAt)}
         </span>
         <div
-          className="max-w-[60%] px-3.5 py-2.5 rounded-2xl rounded-br-sm text-sm text-white leading-relaxed"
+          className="min-w-0 max-w-[75%] whitespace-pre-wrap [overflow-wrap:anywhere] sm:max-w-[60%] px-3.5 py-2.5 rounded-2xl rounded-br-sm text-sm text-white leading-relaxed"
           style={{ background: "var(--theme-chat-bubble)" }}
         >
           {msg.content}
@@ -81,7 +81,7 @@ function MessageBubble({ msg, isMine, showAvatar, senderName, room }) {
           />
         )}
       </div>
-      <div className="max-w-[60%]">
+      <div className="min-w-0 max-w-[75%] whitespace-pre-wrap [overflow-wrap:anywhere] sm:max-w-[60%]">
         {showAvatar && (
           <p className="text-xs text-gray-400 dark:text-theme-muted mb-1 ml-0.5">{senderName}</p>
         )}
@@ -89,7 +89,7 @@ function MessageBubble({ msg, isMine, showAvatar, senderName, room }) {
           {msg.content}
         </div>
       </div>
-      <span className="text-xs text-gray-300 dark:text-theme-muted self-end mb-0.5">
+      <span className="shrink-0 text-xs text-gray-300 dark:text-theme-muted self-end mb-0.5">
         {formatMessageTime(msg.createdAt)}
       </span>
     </div>
@@ -117,7 +117,7 @@ function EmptyState() {
 }
 
 // ─── 메인 컴포넌트 ────────────────────────────────────────────────────────────
-export default function ChatRoom({ room, onMessage }) {
+export default function ChatRoom({ room, onMessage, onBack }) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -128,6 +128,7 @@ export default function ChatRoom({ room, onMessage }) {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const scrollAreaRef = useRef(null);
+  const shouldFollowMessagesRef = useRef(true);
 
   // 현재 로그인 유저 ID
   const myUserId = (() => {
@@ -144,6 +145,7 @@ export default function ChatRoom({ room, onMessage }) {
   // ── REST: 메시지 히스토리 로드 ──────────────────────────────────────────
   useEffect(() => {
     if (!room) return;
+    shouldFollowMessagesRef.current = true;
     setMessages([]);
     setError(null);
     setLoading(true);
@@ -230,17 +232,18 @@ export default function ChatRoom({ room, onMessage }) {
 
   // ── 스크롤 하단 고정 ────────────────────────────────────────────────────
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: "smooth",
+    const scrollArea = scrollAreaRef.current;
+    if (scrollArea && shouldFollowMessagesRef.current) {
+      scrollArea.scrollTo({
+        top: scrollArea.scrollHeight,
+        behavior: "instant",
       });
     }
   }, [messages]);
 
   // ── 방 바뀌면 인풋 포커스 ──────────────────────────────────────────────
   useEffect(() => {
-    if (room) {
+    if (room && window.matchMedia("(min-width: 768px)").matches) {
       inputRef.current?.focus({ preventScroll: true });
     }
   }, [room?.chatRoomId]);
@@ -249,6 +252,7 @@ export default function ChatRoom({ room, onMessage }) {
   const handleSend = async () => {
     const content = input.trim();
     if (!content || sending) return;
+    shouldFollowMessagesRef.current = true;
 
     // 낙관적 업데이트
     const optimistic = {
@@ -328,13 +332,16 @@ export default function ChatRoom({ room, onMessage }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-theme-surface min-h-0">
+    <div className="min-w-0 flex-1 flex flex-col bg-white dark:bg-theme-surface min-h-0">
       {/* 채팅방 헤더 */}
-      <div className="px-5 py-4 border-b border-gray-100 dark:border-theme-border shrink-0 bg-white dark:bg-theme-surface">
+      <div className="flex items-center gap-2 px-3 py-3 sm:px-5 sm:py-4 border-b border-gray-100 dark:border-theme-border shrink-0 bg-white dark:bg-theme-surface">
+        <button type="button" onClick={onBack} aria-label="채팅 목록으로 돌아가기" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-theme-hover md:hidden">
+          <ArrowLeft size={20} />
+        </button>
         <button
           type="button"
           onClick={() => navigate(`/coffee-chat/profile/${room.targetUserId}`)}
-          className="flex items-center gap-3 rounded-lg text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:focus-visible:ring-theme-focus focus-visible:ring-offset-2 dark:ring-offset-theme-surface"
+          className="flex min-w-0 items-center gap-3 rounded-lg text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-theme-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 dark:focus-visible:ring-theme-focus focus-visible:ring-offset-2 dark:ring-offset-theme-surface"
           aria-label={`${room.targetUserName}님의 커피챗 프로필 보기`}
         >
           <CoffeeChatAvatar
@@ -343,8 +350,8 @@ export default function ChatRoom({ room, onMessage }) {
             image={room}
             className="h-9 w-9 text-sm"
           />
-          <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-theme-text">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-gray-900 dark:text-theme-text">
               {room.targetUserName}
             </p>
             <p className="text-xs text-gray-400 dark:text-theme-muted">커피챗</p>
@@ -353,7 +360,14 @@ export default function ChatRoom({ room, onMessage }) {
       </div>
 
       {/* 메시지 영역 */}
-      <div ref={scrollAreaRef} className="flex-1 overflow-y-auto py-4 min-h-0">
+      <div
+        ref={scrollAreaRef}
+        onScroll={(event) => {
+          const { scrollHeight, scrollTop, clientHeight } = event.currentTarget;
+          shouldFollowMessagesRef.current = scrollHeight - scrollTop - clientHeight < 80;
+        }}
+        className="min-h-0 flex-1 overflow-y-auto py-4"
+      >
         {loading && (
           <div className="flex items-center justify-center py-12">
             <Loader2 size={20} className="text-gray-300 dark:text-theme-muted animate-spin" />
@@ -404,7 +418,7 @@ export default function ChatRoom({ room, onMessage }) {
       </div>
 
       {/* 입력창 */}
-      <div className="px-4 py-3 border-t border-gray-100 dark:border-theme-border shrink-0 bg-white dark:bg-theme-surface">
+      <div className="px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 border-t border-gray-100 dark:border-theme-border shrink-0 bg-white dark:bg-theme-surface">
         <div className="flex items-end gap-2 bg-gray-50 dark:bg-theme-subtle rounded-2xl px-4 py-2.5">
           <textarea
             ref={inputRef}
@@ -421,13 +435,14 @@ export default function ChatRoom({ room, onMessage }) {
             onKeyDown={handleKeyDown}
             placeholder="메시지를 입력하세요..."
             rows={1}
-            className="flex-1 text-sm text-gray-800 dark:text-theme-text placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent resize-none leading-relaxed"
+            className="min-w-0 flex-1 text-base sm:text-sm text-gray-800 dark:text-theme-text placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent resize-none leading-relaxed"
             style={{ minHeight: "24px", maxHeight: "120px" }}
           />
           <button
+            aria-label="메시지 보내기"
             onClick={handleSend}
             disabled={!input.trim() || sending}
-            className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-150 disabled:opacity-30"
+            className="shrink-0 w-11 h-11 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors duration-150 disabled:opacity-30"
             style={{
               background: input.trim() && !sending ? "var(--theme-chat-bubble)" : "var(--theme-chat-disabled)",
             }}
@@ -443,7 +458,7 @@ export default function ChatRoom({ room, onMessage }) {
             )}
           </button>
         </div>
-        <p className="text-xs text-gray-300 dark:text-theme-muted mt-1.5 ml-1">
+        <p className="hidden sm:block text-xs text-gray-300 dark:text-theme-muted mt-1.5 ml-1">
           Enter로 전송 · Shift+Enter 줄바꿈
         </p>
       </div>

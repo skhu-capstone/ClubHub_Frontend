@@ -19,6 +19,8 @@ import ClubApplicationPage from "./pages/club/ClubApplicationPage";
 import ClubCreationPage from "./pages/club/ClubCreationPage";
 import ClubDetailPage from "./pages/club/ClubDetailPage";
 import VerifiedRoute from "./components/common/VerifiedRoute";
+import NotificationsPage from "./pages/notifications/NotificationsPage";
+import NotificationEventPage from "./pages/notifications/NotificationEventPage";
 export default function App() {
   return (
     <>
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/cooperation" element={<CooperationPage />} />
         </Route>
         <Route element={<VerifiedRoute />}>
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/notifications/events/:eventId" element={<NotificationEventPage />} />
           <Route path="/coffee-chat" element={<CoffeeChatPage />} />
           <Route path="/club/main" element={<ClubMainPage />} />
           <Route path="/club/main/:clubId" element={<ClubMainPage />} />

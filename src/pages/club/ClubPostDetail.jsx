@@ -262,11 +262,11 @@ function PostEditor({ post, postId, onClose }) {
       {updateMutation.isError && hasUploadedImage && (
         <p role="alert" className="text-xs text-amber-700 dark:text-theme-warning">사진은 업로드되었지만 수정 저장에 실패했습니다. 저장을 다시 눌러 완료해주세요. 취소해도 업로드된 사진은 남아 있을 수 있습니다.</p>
       )}
-      <div className="flex justify-end gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
         <button type="button" onClick={onClose} disabled={updateMutation.isPending}
-          className="rounded-lg border border-gray-300 dark:border-theme-border-strong px-4 py-2 text-sm disabled:opacity-50">취소</button>
+          className="rounded-lg border border-gray-300 dark:border-theme-border-strong min-h-11 px-4 py-2 text-sm disabled:opacity-50">취소</button>
         <button type="submit" disabled={!isValid || updateMutation.isPending}
-          className="rounded-lg bg-[#0B72B9] dark:bg-theme-primary px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-gray-400 dark:disabled:bg-theme-disabled-bg">
+          className="rounded-lg bg-[#0B72B9] dark:bg-theme-primary min-h-11 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-gray-400 dark:disabled:bg-theme-disabled-bg">
           {updateMutation.isPending ? "저장 중..." : "저장"}
         </button>
       </div>
@@ -307,7 +307,7 @@ function ImageCarousel({ images }) {
       {idx > 0 && (
         <button
           onClick={() => setIdx((i) => i - 1)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 transition-colors cursor-pointer"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 transition-colors cursor-pointer"
         >
           <ChevronLeft size={18} strokeWidth={2} className="text-white" />
         </button>
@@ -315,7 +315,7 @@ function ImageCarousel({ images }) {
       {idx < validImages.length - 1 && (
         <button
           onClick={() => setIdx((i) => i + 1)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 transition-colors cursor-pointer"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 transition-colors cursor-pointer"
         >
           <ChevronRight size={18} strokeWidth={2} className="text-white" />
         </button>
@@ -343,12 +343,12 @@ function ImageCarousel({ images }) {
 // ─── 스켈레톤 ─────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-3 animate-pulse">
+    <div className="max-w-2xl mx-auto px-4 py-6 sm:px-6 sm:py-8 flex flex-col gap-3 animate-pulse">
       <div
         className="w-full rounded-2xl bg-slate-200 dark:bg-theme-raised"
-        style={{ height: 420 }}
+        style={{ aspectRatio: "3 / 2" }}
       />
-      <div className="bg-white dark:bg-theme-surface rounded-2xl px-6 py-5 flex flex-col gap-3">
+      <div className="bg-white dark:bg-theme-surface rounded-2xl px-4 py-4 sm:px-6 sm:py-5 flex flex-col gap-3">
         <div className="h-4 w-1/3 bg-slate-200 dark:bg-theme-raised rounded" />
         <div className="h-3 w-full bg-slate-100 dark:bg-theme-subtle rounded" />
         <div className="h-3 w-5/6 bg-slate-100 dark:bg-theme-subtle rounded" />
@@ -369,9 +369,9 @@ function CommentItem({ comment, canDelete, onDelete, isDeleting, isDeletePending
       <div className="w-7 h-7 rounded-full bg-indigo-100 dark:bg-theme-accent flex items-center justify-center text-xs font-semibold text-indigo-600 dark:text-theme-link shrink-0">
         {comment.writerName?.[0] ?? "?"}
       </div>
-      <div className="flex flex-col gap-0.5 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-gray-700 dark:text-theme-secondary">
+      <div className="min-w-0 flex flex-col gap-0.5 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="break-words [overflow-wrap:anywhere] text-xs font-medium text-gray-700 dark:text-theme-secondary">
             {comment.writerName}
           </span>
           <span className="text-xs text-gray-400 dark:text-theme-muted">
@@ -389,7 +389,7 @@ function CommentItem({ comment, canDelete, onDelete, isDeleting, isDeletePending
             </button>
           )}
         </div>
-        <p className="text-sm text-gray-700 dark:text-theme-secondary leading-relaxed">
+        <p className="whitespace-pre-wrap [overflow-wrap:anywhere] text-sm text-gray-700 dark:text-theme-secondary leading-relaxed">
           {comment.content}
         </p>
         {deleteError && <p role="alert" className="text-xs text-red-500 dark:text-theme-danger">{deleteError}</p>}
@@ -588,7 +588,7 @@ export default function ClubPostDetail() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-theme-page flex flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-gray-400 dark:text-theme-muted text-sm">
-          {error?.message || "게시글을 찾을 수 없어요."}
+          {error?.response?.status === 404 ? "삭제된 게시글입니다." : error?.message || "게시글을 찾을 수 없어요."}
         </p>
         <button
           onClick={handleBack}
@@ -610,10 +610,10 @@ export default function ClubPostDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-theme-page">
-      <main className="max-w-2xl mx-auto px-4 py-8 flex flex-col gap-0">
+      <main className="max-w-2xl mx-auto px-4 py-6 sm:px-6 sm:py-8 flex flex-col gap-0">
         <ImageCarousel key={JSON.stringify(post.imageUrls)} images={post.imageUrls} />
 
-        <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow px-6 py-5 flex flex-col gap-4 mt-3">
+        <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow px-4 py-4 sm:px-6 sm:py-5 flex flex-col gap-4 mt-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-theme-accent text-xs font-semibold text-indigo-600 dark:text-theme-link">
@@ -638,7 +638,7 @@ export default function ClubPostDetail() {
                   type="button"
                   onClick={() => setEditingPostId(currentPostId)}
                   disabled={deleteMutation.isPending}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-blue-200 dark:border-theme-border bg-white dark:bg-theme-surface px-3 text-xs font-semibold text-blue-600 dark:text-theme-link transition-colors hover:border-blue-300 dark:hover:border-theme-focus hover:bg-blue-50 dark:hover:bg-theme-accent-hover disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-theme-border disabled:text-gray-400 dark:disabled:text-theme-disabled"
+                  className="inline-flex h-11 sm:h-8 items-center gap-1.5 rounded-lg border border-blue-200 dark:border-theme-border bg-white dark:bg-theme-surface px-3 text-xs font-semibold text-blue-600 dark:text-theme-link transition-colors hover:border-blue-300 dark:hover:border-theme-focus hover:bg-blue-50 dark:hover:bg-theme-accent-hover disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-theme-border disabled:text-gray-400 dark:disabled:text-theme-disabled"
                 >
                   <Pencil size={14} aria-hidden="true" />
                   수정
@@ -649,7 +649,7 @@ export default function ClubPostDetail() {
                   type="button"
                   onClick={handleDeletePost}
                   disabled={deleteMutation.isPending || isEditing}
-                  className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 dark:border-theme-danger-border bg-white dark:bg-theme-surface px-3 text-xs font-semibold text-red-500 dark:text-theme-danger transition-colors hover:border-red-300 dark:hover:border-theme-danger-border hover:bg-red-50 dark:hover:bg-theme-danger-bg disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-theme-border disabled:text-gray-400 dark:disabled:text-theme-disabled"
+                  className="inline-flex h-11 sm:h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-red-200 dark:border-theme-danger-border bg-white dark:bg-theme-surface px-3 text-xs font-semibold text-red-500 dark:text-theme-danger transition-colors hover:border-red-300 dark:hover:border-theme-danger-border hover:bg-red-50 dark:hover:bg-theme-danger-bg disabled:cursor-not-allowed disabled:border-gray-200 dark:disabled:border-theme-border disabled:text-gray-400 dark:disabled:text-theme-disabled"
                 >
                   <Trash2 size={14} aria-hidden="true" />
                   {deleteMutation.isPending ? "삭제 중" : "삭제"}
@@ -695,7 +695,7 @@ export default function ClubPostDetail() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow px-6 py-5 mt-2 flex flex-col gap-4">
+        <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow px-4 py-4 sm:px-6 sm:py-5 mt-2 flex flex-col gap-4">
           <p className="text-sm font-semibold text-gray-700 dark:text-theme-secondary">
             댓글
             {comments.length > 0 && (
@@ -740,12 +740,13 @@ export default function ClubPostDetail() {
               onKeyDown={handleKeyDown}
               placeholder="댓글을 입력하세요..."
               disabled={commentMutation.isPending}
-              className="flex-1 text-sm text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent disabled:opacity-50"
+              className="min-w-0 flex-1 text-base sm:text-sm text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent disabled:opacity-50"
             />
             <button
               onClick={handleCommentSubmit}
               disabled={!commentText.trim() || commentMutation.isPending}
-              className={`shrink-0 transition-colors duration-150 cursor-pointer disabled:cursor-not-allowed ${commentText.trim() && !commentMutation.isPending ? "text-indigo-600 dark:text-theme-link hover:text-indigo-800 dark:hover:text-theme-link" : "text-gray-300 dark:text-theme-muted"}`}
+              aria-label="댓글 등록"
+              className={`flex h-11 w-11 shrink-0 items-center justify-center transition-colors duration-150 cursor-pointer disabled:cursor-not-allowed ${commentText.trim() && !commentMutation.isPending ? "text-indigo-600 dark:text-theme-link hover:text-indigo-800 dark:hover:text-theme-link" : "text-gray-300 dark:text-theme-muted"}`}
             >
               {commentMutation.isPending ? (
                 <span className="text-xs text-gray-400 dark:text-theme-muted">등록 중...</span>

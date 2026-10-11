@@ -56,7 +56,7 @@ function SortDropdown({ value, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-theme-secondary bg-white dark:bg-theme-surface border border-gray-100 dark:border-theme-border rounded-lg px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors duration-150 cursor-pointer shadow-sm dark:shadow-theme-shadow"
+        className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-theme-secondary bg-white dark:bg-theme-surface border border-gray-100 dark:border-theme-border min-h-11 rounded-lg px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors duration-150 cursor-pointer shadow-sm dark:shadow-theme-shadow"
       >
         <ArrowUpDown size={13} strokeWidth={2} />
         {current.label}
@@ -125,7 +125,7 @@ function PostCard({ post, onClick }) {
       )}
 
       <div
-        className="absolute inset-0 flex items-center justify-center gap-4 transition-opacity duration-200"
+        className="absolute inset-0 flex items-end pb-3 sm:pb-0 sm:items-center justify-center gap-4 bg-gradient-to-t from-black/50 to-transparent sm:from-transparent transition-opacity duration-200 [@media(hover:none)]:opacity-100!"
         style={{
           background: hovered ? "rgba(0,0,0,0.45)" : "transparent",
           opacity: hovered ? 1 : 0,
@@ -166,7 +166,7 @@ function sortPosts(posts, sortKey) {
 
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-2">
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
@@ -226,9 +226,9 @@ export default function ClubPostPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-theme-page">
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-4 py-6 sm:px-6 sm:py-8">
         <div className="mb-5">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-theme-text">동아리 게시판</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-theme-text">동아리 게시판</h1>
           <p className="text-sm text-gray-500 dark:text-theme-muted mt-1">
             동아리 활동 내역을 기록하고 추억하세요
           </p>
@@ -256,7 +256,7 @@ export default function ClubPostPage() {
         {!loading &&
           !error &&
           (filteredPosts.length > 0 ? (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-2">
               {filteredPosts.map((post) => (
 		                <PostCard
 		                  key={post.postId}
@@ -282,7 +282,7 @@ export default function ClubPostPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-theme-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-theme-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer"
             >
               <ChevronLeft
                 size={18}
@@ -296,7 +296,7 @@ export default function ClubPostPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-theme-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-theme-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150 cursor-pointer"
             >
               <ChevronRight
                 size={18}

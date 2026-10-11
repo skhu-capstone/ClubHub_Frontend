@@ -71,7 +71,7 @@ export default function CoffeeChatProfilePage() {
           "Content-Type": "application/json",
           Authorization: token ? `Bearer ${token}` : "",
         },
-        body: JSON.stringify({ targetUserId }),
+        body: JSON.stringify({ targetUserId, source: "COFFEE_CHAT" }),
       });
       const result = await response.json().catch(() => null);
 

@@ -85,23 +85,23 @@ export default function RecruitmentActions({ type, id, post, onUpdated }) {
                 {multiline ? (
                   <textarea rows={6} required={required} value={form[key]}
                     onChange={(event) => setForm((old) => ({ ...old, [key]: event.target.value }))}
-                    className="rounded-lg border border-gray-300 dark:border-theme-border-strong p-2 outline-none focus:border-indigo-500 dark:focus:border-theme-focus" />
+                    className="min-w-0 w-full rounded-lg border border-gray-300 dark:border-theme-border-strong p-3 text-base sm:text-sm outline-none focus:border-indigo-500 dark:focus:border-theme-focus" />
                 ) : (
                   <input type={inputType ?? "text"} required={required} maxLength={maxLength} value={form[key]}
                     onChange={(event) => setForm((old) => ({ ...old, [key]: event.target.value }))}
-                    className="rounded-lg border border-gray-300 dark:border-theme-border-strong p-2 outline-none focus:border-indigo-500 dark:focus:border-theme-focus" />
+                    className="min-w-0 w-full rounded-lg border border-gray-300 dark:border-theme-border-strong p-3 text-base sm:text-sm outline-none focus:border-indigo-500 dark:focus:border-theme-focus" />
                 )}
               </label>
             ))}
             <p className="text-xs text-gray-500 dark:text-theme-muted">이미지 URL을 비우면 첨부 이미지를 삭제합니다.</p>
-            <div className="flex justify-end gap-3">
-              <button type="button" onClick={() => { setEditing(false); setError(""); }} className="rounded-lg border px-4 py-2 text-sm">취소</button>
-              <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white disabled:opacity-50">{pending ? "저장 중..." : "저장"}</button>
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
+              <button type="button" onClick={() => { setEditing(false); setError(""); }} className="min-h-11 rounded-lg border px-4 py-2 text-sm">취소</button>
+              <button type="submit" className="min-h-11 rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white disabled:opacity-50">{pending ? "저장 중..." : "저장"}</button>
             </div>
           </fieldset>
         </form>
       ) : (
-        <div className="flex justify-end gap-4 text-sm">
+        <div className="flex justify-end gap-4 text-sm [&>button]:min-h-11 [&>button]:px-2">
           {canUpdate && <button type="button" disabled={!!pending} onClick={startEditing} className="text-indigo-600 dark:text-theme-link disabled:opacity-50">수정</button>}
           {canDelete && <button type="button" disabled={!!pending} onClick={() => submit("DELETE")} className="text-red-500 dark:text-theme-danger disabled:opacity-50">{pending ? "삭제 중..." : "삭제"}</button>}
         </div>

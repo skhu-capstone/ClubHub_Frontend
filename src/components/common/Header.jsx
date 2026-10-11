@@ -19,6 +19,7 @@ import { getMyPage } from "../../services/myPageService";
 import { getProfileImageUrl } from "../../utils/imageUtils";
 import logo from "../../assets/logo.png";
 import ThemeSwitcher from "./ThemeSwitcher.jsx";
+import NotificationBell from "./NotificationBell.jsx";
 import { isUsableAccessToken } from "../../utils/authUtils";
 
 const NAV_ITEMS = [
@@ -160,7 +161,7 @@ export default function Header() {
           <img src={logo} alt="logo" className="theme-logo h-10 w-auto" />
         </button>
 
-        <div className="hidden justify-end pr-2 md:flex" ref={navMenuRef}>
+        <div className="hidden justify-end pr-2 lg:flex" ref={navMenuRef}>
           <div className="rounded-2xl bg-white dark:bg-theme-surface px-2 py-1.5">
             <nav className="flex items-center gap-1">
               {NAV_ITEMS.map((item) => {
@@ -260,13 +261,14 @@ export default function Header() {
         </div>
 
         <div className="col-start-3 flex items-center justify-self-end gap-2">
-          <div className="hidden md:block">
+          {isLoggedIn && user.isVerified && <NotificationBell key={user.userId ?? user.id} userId={user.userId ?? user.id} onOpen={() => handleNavClick("/notifications")} />}
+          <div className="hidden lg:block">
             <ThemeSwitcher />
           </div>
           <button
             type="button"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/50 bg-white/20 transition-colors duration-150 hover:bg-white/35 md:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/50 bg-white/20 transition-colors duration-150 hover:bg-white/35 lg:hidden"
             aria-label="메뉴"
           >
             {mobileMenuOpen ? (
@@ -357,7 +359,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <div
           ref={mobileNavMenuRef}
-          className="border-t border-white/20 bg-white/10 backdrop-blur-sm md:hidden"
+          className="border-t border-white/20 bg-white/10 backdrop-blur-sm lg:hidden"
         >
           <nav className="flex flex-col px-4 py-2">
             {NAV_ITEMS.map((item) => {

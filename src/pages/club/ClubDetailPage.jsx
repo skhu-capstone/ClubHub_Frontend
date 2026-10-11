@@ -75,6 +75,7 @@ export default function ClubDetailPage() {
     data: club,
     isLoading,
     isError,
+    error: clubError,
     refetch,
   } = useQuery({
     queryKey: ["clubDetail", numericClubId],
@@ -170,7 +171,7 @@ export default function ClubDetailPage() {
           <AlertCircle size={32} className="text-red-400 dark:text-theme-danger" />
 
           <p className="font-medium text-gray-700 dark:text-theme-secondary">
-            동아리 정보를 불러오지 못했습니다.
+            {clubError?.response?.status === 404 ? "삭제된 동아리입니다." : "동아리 정보를 불러오지 못했습니다."}
           </p>
 
           <div className="flex gap-2">

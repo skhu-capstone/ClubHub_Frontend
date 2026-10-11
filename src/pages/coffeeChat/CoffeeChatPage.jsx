@@ -182,11 +182,10 @@ export default function CoffeeChatPage() {
   return (
     // 전체 페이지: 헤더 높이만큼 빼서 꽉 채움
     // 헤더가 64px이라고 가정 — 프로젝트에 맞게 조정하세요
-    <div className="flex" style={{ height: "calc(100vh - 64px)" }}>
+    <div className="flex h-[calc(100dvh-64px)] min-h-0 w-full overflow-hidden">
       {/* ── 좌측 채팅 목록 (30%) ─────────────────────────────────────────── */}
       <div
-        className="flex flex-col border-r border-gray-100 dark:border-theme-border bg-white dark:bg-theme-surface"
-        style={{ width: "30%", minWidth: "260px" }}
+        className={`${selectedRoom ? "hidden md:flex" : "flex"} min-h-0 w-full flex-col border-r border-gray-100 dark:border-theme-border bg-white dark:bg-theme-surface md:w-80 md:shrink-0 lg:w-[30%]`}
       >
         {/* 헤더 */}
         <div className="px-5 pt-6 pb-3 shrink-0">
@@ -200,6 +199,9 @@ export default function CoffeeChatPage() {
             )}
           </div>
           <p className="text-xs text-gray-400 dark:text-theme-muted">대화를 이어가 보세요</p>
+          {location.state?.fromNotification && targetRoomId && !loading && !error && !rooms.some((room) => Number(room.chatRoomId) === Number(targetRoomId)) && (
+            <p role="alert" className="mt-3 text-sm text-red-500 dark:text-theme-danger">삭제되었거나 접근할 수 없는 채팅방입니다.</p>
+          )}
         </div>
 
         {/* 검색창 */}
@@ -215,7 +217,7 @@ export default function CoffeeChatPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="이름 또는 메시지 검색"
-              className="flex-1 text-xs text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent"
+              className="min-w-0 flex-1 text-base sm:text-xs text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent"
             />
           </div>
         </div>
@@ -223,7 +225,7 @@ export default function CoffeeChatPage() {
         <div className="h-px bg-gray-100 dark:bg-theme-subtle mx-4 shrink-0" />
 
         {/* 목록 */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {loading && (
             <div className="flex items-center justify-center py-12">
               <Loader2 size={18} className="text-gray-300 dark:text-theme-muted animate-spin" />
@@ -262,8 +264,8 @@ export default function CoffeeChatPage() {
       </div>
 
       {/* ── 우측 채팅창 (70%) ────────────────────────────────────────────── */}
-      <div className="flex flex-col" style={{ width: "70%" }}>
-        <ChatRoom room={selectedRoom} onMessage={handleNewMessage} />
+      <div className={`${selectedRoom ? "flex" : "hidden md:flex"} min-h-0 min-w-0 flex-1 flex-col`}>
+        <ChatRoom room={selectedRoom} onMessage={handleNewMessage} onBack={() => setSelectedRoom(null)} />
       </div>
     </div>
   );

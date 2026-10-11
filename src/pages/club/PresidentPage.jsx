@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, ChevronDown, ImagePlus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -55,7 +55,14 @@ export default function PresidentPage() {
   const { user: authUser, loading: authLoading } = useAuth();
   const accessToken = localStorage.getItem("accessToken");
   const isAuthenticated = !!authUser && !!accessToken;
-  const [activeTab, setActiveTab] = useState("info");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedTab = searchParams.get("tab");
+  const activeTab = managementTabs.some((tab) => tab.key === requestedTab) ? requestedTab : "info";
+  const setActiveTab = (tab) => setSearchParams((previous) => {
+    const next = new URLSearchParams(previous);
+    next.set("tab", tab);
+    return next;
+  });
   const [removedApplicantIds, setRemovedApplicantIds] = useState([]);
   const [members, setMembers] = useState([]);
   const [clubImageFile, setClubImageFile] = useState(null);

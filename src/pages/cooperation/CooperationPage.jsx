@@ -37,11 +37,11 @@ function ClubPostCard({ post, onClick }) {
 
   return (
     <div
-      className="bg-white dark:bg-theme-surface rounded-2xl px-6 py-5 shadow-sm dark:shadow-theme-shadow flex flex-col gap-2 cursor-pointer hover:shadow-md dark:hover:shadow-theme-shadow transition-shadow duration-150"
+      className="bg-white dark:bg-theme-surface rounded-2xl px-4 py-4 sm:px-6 sm:py-5 shadow-sm dark:shadow-theme-shadow flex flex-col gap-2 cursor-pointer hover:shadow-md dark:hover:shadow-theme-shadow transition-shadow duration-150"
       onClick={onClick}
     >
       <div className="flex justify-between items-start gap-3">
-        <span className="font-semibold text-sm text-gray-900 dark:text-theme-text leading-snug flex-1">
+        <span className="font-semibold text-sm text-gray-900 dark:text-theme-text leading-snug min-w-0 flex-1 [overflow-wrap:anywhere]">
           {post.title}
         </span>
         <div className="flex flex-col items-end gap-1 shrink-0">
@@ -52,7 +52,7 @@ function ClubPostCard({ post, onClick }) {
           >
             {dday}
           </span>
-          <span className="text-xs text-gray-400 dark:text-theme-muted">{club}</span>
+          <span className="max-w-28 break-words text-right text-xs text-gray-400 dark:text-theme-muted">{club}</span>
         </div>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
@@ -66,7 +66,7 @@ function ClubPostCard({ post, onClick }) {
         ))}
         <span className="text-xs text-gray-400 dark:text-theme-muted">{deadline}</span>
       </div>
-      <p className="text-xs text-gray-500 dark:text-theme-muted">{post.content}</p>
+      <p className="line-clamp-3 [overflow-wrap:anywhere] text-xs text-gray-500 dark:text-theme-muted">{post.content}</p>
     </div>
   );
 }
@@ -85,10 +85,10 @@ function ProjectPostCard({ post, onClick }) {
       >
         {dday}
       </span>
-      <p className="font-bold text-sm text-gray-900 dark:text-theme-text leading-snug">
+      <p className="[overflow-wrap:anywhere] font-bold text-sm text-gray-900 dark:text-theme-text leading-snug">
         {post.title}
       </p>
-      <p className="text-xs text-gray-500 dark:text-theme-muted flex-1">{post.content}</p>
+      <p className="line-clamp-3 [overflow-wrap:anywhere] text-xs text-gray-500 dark:text-theme-muted flex-1">{post.content}</p>
       <p className="text-xs text-gray-400 dark:text-theme-muted">
         {post.deadline ? `~ ${post.deadline}` : ""}
       </p>
@@ -206,14 +206,14 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
       style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-xl dark:shadow-theme-shadow w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-theme-border">
+      <div className="bg-white dark:bg-theme-surface rounded-t-2xl sm:rounded-2xl shadow-xl dark:shadow-theme-shadow w-full max-w-lg max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col">
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-5 py-4 border-b border-gray-100 dark:border-theme-border">
           <div>
             <h2 className="text-base font-semibold text-gray-900 dark:text-theme-text">
               새 협업 모집하기
@@ -224,13 +224,13 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-theme-hover transition-colors cursor-pointer"
+            className="shrink-0 w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-theme-hover transition-colors cursor-pointer"
           >
             <X size={16} strokeWidth={2} className="text-gray-500 dark:text-theme-muted" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+        <div className="min-h-0 overflow-y-auto overscroll-contain flex-1 px-4 sm:px-5 py-4 space-y-4">
           {apiError && (
             <div className="flex items-start gap-2 bg-red-50 dark:bg-theme-danger-bg border border-red-100 dark:border-theme-danger-border rounded-lg px-3 py-2.5">
               <AlertCircle
@@ -254,7 +254,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               value={selectedClubId}
               onChange={(e) => setField("clubId", e.target.value)}
               disabled={loading || isChecking || hasError || clubs.length === 0}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.clubId
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -283,7 +283,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               onChange={(e) => setField("title", e.target.value)}
               placeholder="예) 간지톤 같이 나갈 기획자 구해요"
               maxLength={100}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.title
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -305,7 +305,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               value={form.contestName}
               onChange={(e) => setField("contestName", e.target.value)}
               placeholder="예) 간지톤"
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.contestName
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -327,7 +327,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               value={form.contestDate}
               min={today}
               onChange={(e) => setField("contestDate", e.target.value)}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.contestDate
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -349,7 +349,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               value={form.deadline}
               min={today}
               onChange={(e) => setField("deadline", e.target.value)}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.deadline
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -371,7 +371,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
               onChange={(e) => setField("content", e.target.value)}
               placeholder="모집 내용, 우대 조건 등을 자유롭게 작성해주세요"
               rows={4}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
                 errors.content
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-green-400 dark:focus:border-theme-success"
@@ -387,17 +387,17 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
           {createdPost && <p className="text-xs text-gray-500 dark:text-theme-muted">모집글은 이미 등록되었습니다. 사진 업로드를 재시도하거나 목록으로 이동할 수 있습니다.</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 dark:border-theme-border">
+        <div className="shrink-0 grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 px-4 sm:px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-theme-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-500 dark:text-theme-muted bg-white dark:bg-theme-surface border border-gray-200 dark:border-theme-border rounded-lg hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors cursor-pointer"
+            className="min-h-11 px-4 py-2 text-sm text-gray-500 dark:text-theme-muted bg-white dark:bg-theme-surface border border-gray-200 dark:border-theme-border rounded-lg hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors cursor-pointer"
           >
             취소
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading || !isAuthenticated || (!createdPost && (isChecking || hasError || !selectedClub))}
-            className="px-4 py-2 text-sm text-white bg-green-500 dark:bg-theme-success-action rounded-lg hover:bg-green-600 dark:hover:bg-theme-success-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-medium"
+            className="min-h-11 px-4 py-2 text-sm text-white bg-green-500 dark:bg-theme-success-action rounded-lg hover:bg-green-600 dark:hover:bg-theme-success-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-medium"
           >
             {loading ? "등록 중..." : createdPost ? (imageFile ? "사진 업로드 재시도" : "완료") : "모집 등록"}
           </button>
@@ -500,14 +500,14 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4"
       style={{ background: "rgba(0,0,0,0.4)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-xl dark:shadow-theme-shadow w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-theme-border">
+      <div className="bg-white dark:bg-theme-surface rounded-t-2xl sm:rounded-2xl shadow-xl dark:shadow-theme-shadow w-full max-w-lg max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col">
+        <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-5 py-4 border-b border-gray-100 dark:border-theme-border">
           <div>
             <h2 className="text-base font-semibold text-gray-900 dark:text-theme-text">
               새 팀원 모집하기
@@ -518,13 +518,13 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
           </div>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-theme-hover transition-colors cursor-pointer"
+            className="shrink-0 w-11 h-11 sm:w-8 sm:h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-theme-hover transition-colors cursor-pointer"
           >
             <X size={16} strokeWidth={2} className="text-gray-500 dark:text-theme-muted" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+        <div className="min-h-0 overflow-y-auto overscroll-contain flex-1 px-4 sm:px-5 py-4 space-y-4">
           {apiError && (
             <div className="flex items-start gap-2 bg-red-50 dark:bg-theme-danger-bg border border-red-100 dark:border-theme-danger-border rounded-lg px-3 py-2.5">
               <AlertCircle
@@ -548,7 +548,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
               disabled={loading || !!createdPost}
               placeholder="예) 포폴용 앱 프로젝트 같이하실분"
               maxLength={100}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.title
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus"
@@ -570,7 +570,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
               disabled={loading || !!createdPost}
               onChange={(e) => setField("writerStack", e.target.value)}
               placeholder="예) 백엔드, 프론트엔드, 디자인"
-              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus outline-none transition-colors"
+              className="min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus outline-none transition-colors"
             />
           </div>
 
@@ -586,7 +586,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
               disabled={loading || !!createdPost}
               onChange={(e) => setField("positions", e.target.value)}
               placeholder="예) 프론트 2명, 백엔드 1명"
-              className="w-full text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus outline-none transition-colors"
+              className="min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus outline-none transition-colors"
             />
           </div>
 
@@ -600,7 +600,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
               value={form.deadline}
               min={today}
               onChange={(e) => setField("deadline", e.target.value)}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors ${
                 errors.deadline
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus"
@@ -623,7 +623,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
               disabled={loading || !!createdPost}
               placeholder="프로젝트 소개, 기술 스택, 우대 조건 등을 자유롭게 작성해주세요"
               rows={5}
-              className={`w-full text-sm px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
+              className={`min-w-0 min-h-11 w-full text-base sm:text-sm px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
                 errors.content
                   ? "border-red-300 dark:border-theme-danger-border bg-red-50 dark:bg-theme-danger-bg"
                   : "border-gray-200 dark:border-theme-border focus:border-indigo-400 dark:focus:border-theme-focus"
@@ -638,17 +638,17 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
           {createdPost && <p className="text-xs text-gray-500 dark:text-theme-muted">모집글은 이미 등록되었습니다. 사진 업로드를 재시도하거나 목록으로 이동할 수 있습니다.</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 dark:border-theme-border">
+        <div className="shrink-0 grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 px-4 sm:px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-gray-100 dark:border-theme-border">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-500 dark:text-theme-muted bg-white dark:bg-theme-surface border border-gray-200 dark:border-theme-border rounded-lg hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors cursor-pointer"
+            className="min-h-11 px-4 py-2 text-sm text-gray-500 dark:text-theme-muted bg-white dark:bg-theme-surface border border-gray-200 dark:border-theme-border rounded-lg hover:bg-gray-50 dark:hover:bg-theme-hover transition-colors cursor-pointer"
           >
             취소
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-4 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-medium"
+            className="min-h-11 px-4 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer font-medium"
           >
             {loading ? "등록 중..." : createdPost ? (imageFile ? "사진 업로드 재시도" : "완료") : "모집 등록"}
           </button>
@@ -673,7 +673,7 @@ function SkeletonList() {
 }
 function SkeletonGrid() {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="bg-white dark:bg-theme-surface rounded-2xl p-5 h-44 animate-pulse" />
       ))}
@@ -776,13 +776,13 @@ export default function CooperationPage() {
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-theme-page flex flex-col">
-      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-8 flex flex-col gap-5">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-6 sm:px-6 sm:py-8 flex flex-col gap-4 sm:gap-5">
         {/* 탭 */}
         <div className="grid grid-cols-2 bg-slate-200 dark:bg-theme-raised rounded-full p-1 gap-1">
           <button
             onClick={() => handleTabChange("club")}
             className={[
-              "rounded-full py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer",
+              "min-h-11 rounded-full px-2 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer",
               isClub
                 ? "bg-green-500 dark:bg-theme-success-action text-white shadow"
                 : "text-gray-500 dark:text-theme-muted hover:text-gray-700 dark:hover:text-theme-secondary",
@@ -793,7 +793,7 @@ export default function CooperationPage() {
           <button
             onClick={() => handleTabChange("project")}
             className={[
-              "rounded-full py-2.5 text-sm font-semibold transition-all duration-200 cursor-pointer",
+              "min-h-11 rounded-full px-2 py-2.5 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer",
               !isClub
                 ? "bg-indigo-600 text-white shadow"
                 : "text-gray-500 dark:text-theme-muted hover:text-gray-700 dark:hover:text-theme-secondary",
@@ -813,9 +813,9 @@ export default function CooperationPage() {
             onKeyDown={(e) => {
               if (e.key === "Enter") handleSearch();
             }}
-            className="flex-1 text-sm text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent"
+            className="min-w-0 flex-1 text-base sm:text-sm text-gray-700 dark:text-theme-secondary placeholder-gray-400 dark:placeholder:text-theme-muted outline-none bg-transparent"
           />
-          <button onClick={handleSearch} className="cursor-pointer">
+          <button onClick={handleSearch} aria-label="모집글 검색" className="flex h-11 w-11 shrink-0 items-center justify-center cursor-pointer">
             <Search size={17} className="text-gray-400 dark:text-theme-muted shrink-0" />
           </button>
         </div>
@@ -856,7 +856,7 @@ export default function CooperationPage() {
             <p className="text-sm text-gray-400 dark:text-theme-muted">모집글이 없습니다</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {projectPosts.map((post) => (
               <ProjectPostCard
                 key={post.projectRecruitmentId}
@@ -874,7 +874,7 @@ export default function CooperationPage() {
           <button
             onClick={handleCreateClick}
             className={[
-              "flex items-center gap-2 px-12 py-3.5 rounded-full text-white font-bold text-sm shadow-lg dark:shadow-theme-shadow hover:opacity-90 transition-opacity duration-150 cursor-pointer",
+              "flex w-full sm:w-auto justify-center items-center gap-2 px-6 sm:px-12 py-3.5 rounded-full text-white font-bold text-sm shadow-lg dark:shadow-theme-shadow hover:opacity-90 transition-opacity duration-150 cursor-pointer",
               isClub ? "bg-green-500 dark:bg-theme-success-action" : "bg-indigo-600",
             ].join(" ")}
           >
