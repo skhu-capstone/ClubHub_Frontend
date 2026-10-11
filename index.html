@@ -1,29 +1,58 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 기본 SEO 설정 -->
+    <title>ClubHub</title>
+    <meta
+      name="description"
+      content="동아리 활동과 협업을 연결하는 플랫폼, ClubHub"
+    />
+
+    <!-- Open Graph: 링크 공유 미리보기 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClubHub" />
+    <meta property="og:title" content="ClubHub" />
+    <meta
+      property="og:description"
+      content="동아리 활동과 협업을 연결하는 플랫폼, ClubHub"
+    />
+    <meta property="og:url" content="https://www.clubhubb.co.kr/" />
+    <meta property="og:locale" content="ko_KR" />
+
+    <!-- 다크모드 초기 설정 -->
     <script>
       // Apply before CSS and React render to avoid a flash of the wrong theme.
       (() => {
         let theme = "system";
         let systemIsDark = false;
+
         try {
           const stored = localStorage.getItem("capstone-theme");
-          if (["light", "dark", "system"].includes(stored)) theme = stored;
+          if (["light", "dark", "system"].includes(stored)) {
+            theme = stored;
+          }
         } catch {}
+
         try {
-          systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          systemIsDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
         } catch {}
-        const resolved = theme === "system" ? (systemIsDark ? "dark" : "light") : theme;
+
+        const resolved =
+          theme === "system" ? (systemIsDark ? "dark" : "light") : theme;
+
         document.documentElement.classList.toggle("dark", resolved === "dark");
         document.documentElement.dataset.theme = resolved;
         document.documentElement.style.colorScheme = resolved;
       })();
     </script>
-    <title>ClubHub</title>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
