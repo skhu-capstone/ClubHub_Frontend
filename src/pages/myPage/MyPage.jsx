@@ -7,6 +7,7 @@ import EditInputLabel from "../../components/card/EditInputLabel";
 import { getMyPage, updateNickname, updateCoffeeChatProfile, updateCoffeeChatVisibility, uploadProfileImage } from "../../services/myPageService";
 import { useAuth } from "../../context/AuthContext";
 import { getProfileImageUrl } from "../../utils/imageUtils";
+import { MEETING_TYPE_LABELS } from "../../utils/meetingType";
 import { Camera, Coffee, Eye, Pencil, UserRound } from "lucide-react";
 
 const MAX_PROFILE_IMAGE_SIZE = 20 * 1024 * 1024;
@@ -84,7 +85,9 @@ export default function MyPage() {
       const newProfile = {
         studentId: coffeeChatProfile?.studentId ?? "",
         interest: coffeeChatProfile?.interestTopics ?? "",
-        preferredMethod: coffeeChatProfile?.meetingType ?? "ONLINE",
+        preferredMethod: Object.hasOwn(MEETING_TYPE_LABELS, coffeeChatProfile?.meetingType)
+          ? coffeeChatProfile.meetingType
+          : "ONLINE",
         link: coffeeChatProfile?.contactLink ?? "",
         shortIntro: coffeeChatProfile?.headline ?? "",
         intro: coffeeChatProfile?.introduction ?? "",
@@ -531,14 +534,24 @@ export default function MyPage() {
                     disabled={updateProfileMutation.isPending}
                   />
 
-                  <EditInputLabel
-                    label="선호 미팅 방식"
-                    value={tempProfile.preferredMethod}
-                    onChange={(e) =>
-                      handleChange("preferredMethod", e.target.value)
-                    }
-                    disabled={updateProfileMutation.isPending}
-                  />
+                  <div className="flex w-full flex-col gap-1">
+                    <label htmlFor="meetingType" className="text-xs font-medium leading-4 text-gray-900 dark:text-theme-text">
+                      선호 미팅 방식
+                    </label>
+                    <select
+                      id="meetingType"
+                      name="meetingType"
+                      required
+                      value={tempProfile.preferredMethod}
+                      onChange={(e) => handleChange("preferredMethod", e.target.value)}
+                      disabled={updateProfileMutation.isPending}
+                      className="min-h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-base leading-5 text-black outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-theme-border dark:bg-theme-subtle dark:text-theme-text dark:focus:ring-theme-focus"
+                    >
+                      {Object.entries(MEETING_TYPE_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
 
                   <EditInputLabel
                     label="연락링크"
@@ -553,7 +566,7 @@ export default function MyPage() {
                   <InputLabel label="관심분야" value={profile.interest} />
                   <InputLabel
                     label="선호 미팅 방식"
-                    value={profile.preferredMethod}
+                    value={MEETING_TYPE_LABELS[profile.preferredMethod]}
                   />
                   <InputLabel label="연락링크" value={profile.link} />
                 </>

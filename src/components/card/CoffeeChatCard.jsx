@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { getProfileImageUrl } from "../../utils/imageUtils";
+import { MEETING_TYPE_LABELS } from "../../utils/meetingType";
 import SafeImage from "../common/SafeImage";
 import { ArrowUpRight, Laptop, MapPin, Sparkles } from "lucide-react";
 
@@ -14,11 +15,7 @@ function CoffeeChatCard({
 }) {
   const navigate = useNavigate();
   const normalizedMeetingType = String(meetingType).toUpperCase();
-  const meetingTypeText = normalizedMeetingType === "ONLINE"
-    ? "온라인"
-    : normalizedMeetingType === "OFFLINE"
-      ? "오프라인"
-      : meetingType || "협의 가능";
+  const meetingTypeText = MEETING_TYPE_LABELS[normalizedMeetingType] || meetingType || "협의 가능";
   const MeetingIcon = normalizedMeetingType === "OFFLINE" ? MapPin : Laptop;
 
   return (

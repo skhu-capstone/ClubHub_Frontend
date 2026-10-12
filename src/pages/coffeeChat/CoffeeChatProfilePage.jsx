@@ -7,14 +7,9 @@ import InputLabel from "../../components/card/InputLabel";
 import { getCoffeeChatProfile } from "../../services/coffeeChatProfileService";
 import { useAuth } from "../../context/AuthContext";
 import { getProfileImageUrl } from "../../utils/imageUtils";
+import { MEETING_TYPE_LABELS } from "../../utils/meetingType";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
-
-const MEETING_TYPE_LABELS = {
-  ONLINE: "온라인",
-  OFFLINE: "오프라인",
-  BOTH: "온라인·오프라인",
-};
 
 const getHttpUrl = (value) => {
   if (!value) return null;
