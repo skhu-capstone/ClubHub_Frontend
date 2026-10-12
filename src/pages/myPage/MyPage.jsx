@@ -8,7 +8,7 @@ import { getMyPage, updateNickname, updateCoffeeChatProfile, updateCoffeeChatVis
 import { useAuth } from "../../context/AuthContext";
 import { getProfileImageUrl } from "../../utils/imageUtils";
 import { MEETING_TYPE_LABELS } from "../../utils/meetingType";
-import { Camera, Coffee, Eye, Pencil, UserRound } from "lucide-react";
+import { Camera, ChevronDown, Coffee, Eye, Pencil, UserRound } from "lucide-react";
 
 const MAX_PROFILE_IMAGE_SIZE = 20 * 1024 * 1024;
 const ALLOWED_PROFILE_IMAGE_TYPES = ["image/png", "image/jpeg"];
@@ -538,6 +538,7 @@ export default function MyPage() {
                     <label htmlFor="meetingType" className="text-xs font-medium leading-4 text-gray-900 dark:text-theme-text">
                       선호 미팅 방식
                     </label>
+                    <div className="relative">
                     <select
                       id="meetingType"
                       name="meetingType"
@@ -545,12 +546,14 @@ export default function MyPage() {
                       value={tempProfile.preferredMethod}
                       onChange={(e) => handleChange("preferredMethod", e.target.value)}
                       disabled={updateProfileMutation.isPending}
-                      className="min-h-11 w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-base leading-5 text-black outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-theme-border dark:bg-theme-subtle dark:text-theme-text dark:focus:ring-theme-focus"
+                      className="min-h-11 w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-3.5 pr-10 text-base leading-5 text-black outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-theme-border dark:bg-theme-subtle dark:text-theme-text dark:focus:ring-theme-focus"
                     >
                       {Object.entries(MEETING_TYPE_LABELS).map(([value, label]) => (
                         <option key={value} value={value}>{label}</option>
                       ))}
                     </select>
+                    <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-theme-muted" />
+                    </div>
                   </div>
 
                   <EditInputLabel
