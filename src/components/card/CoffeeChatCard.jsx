@@ -19,7 +19,7 @@ function CoffeeChatCard({
   const MeetingIcon = normalizedMeetingType === "OFFLINE" ? MapPin : Laptop;
 
   return (
-    <article className="relative flex h-full min-h-44 w-full min-w-0 items-center overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-[0px_6px_18px_rgba(15,23,42,0.07)] transition-all duration-200 dark:border-theme-border dark:bg-theme-surface dark:shadow-theme-shadow md:min-h-105 md:flex-col md:justify-center md:px-6 md:py-6 md:hover:-translate-y-1 md:hover:border-sky-300 md:hover:shadow-[0px_12px_30px_rgba(15,23,42,0.12)] md:dark:hover:border-theme-focus"
+    <article className="relative flex h-full min-h-48 w-full min-w-0 items-center overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-6 shadow-[0px_6px_18px_rgba(15,23,42,0.07)] transition-all duration-200 dark:border-theme-border dark:bg-theme-surface dark:shadow-theme-shadow md:min-h-105 md:flex-col md:justify-center md:px-6 md:py-10 md:hover:-translate-y-1 md:hover:border-sky-300 md:hover:shadow-[0px_12px_30px_rgba(15,23,42,0.12)] md:dark:hover:border-theme-focus"
     >
       <span className="absolute inset-x-0 top-0 h-1 bg-sky-600 dark:bg-theme-primary" aria-hidden="true" />
       <div className="flex w-full min-w-0 items-center gap-4 md:flex-col md:gap-7">
