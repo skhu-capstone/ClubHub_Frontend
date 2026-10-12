@@ -62,7 +62,7 @@ function FeedCard({
 
       {/* 내용 */}
       <div
-        className="col-start-2 row-start-2 min-w-0 self-start overflow-hidden break-words text-sm font-normal leading-5 text-slate-600 dark:text-theme-secondary md:order-3 md:col-auto md:row-auto md:text-base md:leading-6 md:text-slate-700 md:dark:text-theme-secondary"
+        className="col-start-2 row-start-2 w-full min-w-0 max-w-full self-start overflow-hidden [overflow-wrap:anywhere] text-sm font-normal leading-5 text-slate-600 dark:text-theme-secondary md:order-3 md:col-auto md:row-auto md:text-base md:leading-6 md:text-slate-700 md:dark:text-theme-secondary"
         style={{
           display: "-webkit-box",
           WebkitBoxOrient: "vertical",
