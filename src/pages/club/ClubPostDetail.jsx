@@ -285,7 +285,7 @@ function ImageCarousel({ images }) {
 
   if (validImages.length === 0) {
     return <img src={DEFAULT_FEED_IMAGE} alt="동아리 게시물 기본 이미지"
-      className="w-full rounded-2xl object-cover" style={{ maxHeight: 420 }} />;
+      className="block h-auto w-full rounded-2xl" />;
   }
 
   const imageUrl = brokenImageIndexes.includes(idx)
@@ -297,8 +297,7 @@ function ImageCarousel({ images }) {
       <img
         src={imageUrl}
         alt={`이미지 ${idx + 1}`}
-        className="w-full object-cover"
-        style={{ maxHeight: 420 }}
+        className="block h-auto w-full"
         onError={() =>
           setBrokenImageIndexes((prev) =>
             prev.includes(idx) ? prev : [...prev, idx]
