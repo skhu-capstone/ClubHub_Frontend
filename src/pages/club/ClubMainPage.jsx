@@ -330,7 +330,8 @@ export default function ClubMainPage() {
 
   // 위에 있는 멤버 프리뷰
   const previewMembers = members.slice(0, 4);
-  const hiddenMemberCount = members.length - previewMembers.length;
+  const previewMemberNames = members.slice(0, 2).map((member) => member.name).filter(Boolean);
+  const hiddenMemberCount = members.length - previewMemberNames.length;
 
   // 전체 페이지 수 계산한 거
   const totalMemberPages = Math.ceil(members.length / memberPerPage);
@@ -521,8 +522,7 @@ export default function ClubMainPage() {
             </div>
 
             <p className="min-w-0 truncate text-sm text-slate-900/60 dark:text-theme-muted sm:text-base">
-              {members[0]?.name}
-              {members[1]?.name && `, ${members[1].name}`}{" "}
+              {previewMemberNames.join(", ")}
               {hiddenMemberCount > 0 && (
                 <span> 외 {hiddenMemberCount}명</span>
               )}
