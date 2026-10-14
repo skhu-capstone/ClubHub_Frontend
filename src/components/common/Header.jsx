@@ -18,7 +18,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { getMyPage } from "../../services/myPageService";
 import { getProfileImageUrl } from "../../utils/imageUtils";
-import logo from "../../assets/logo.png";
+import ThemeLogo from "./ThemeLogo.jsx";
 import ThemeSwitcher from "./ThemeSwitcher.jsx";
 import NotificationBell from "./NotificationBell.jsx";
 import { isUsableAccessToken } from "../../utils/authUtils";
@@ -183,7 +183,7 @@ export default function Header() {
           onClick={() => handleNavClick("/")}
           aria-label="홈으로 이동"
         >
-          <img src={logo} alt="logo" className="theme-logo h-10 w-auto" />
+          <ThemeLogo alt="logo" className="theme-logo h-12 w-auto" />
         </button>
         )}
 

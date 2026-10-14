@@ -1,5 +1,5 @@
 import { GitFork, Mail, Code2, Server } from "lucide-react";
-import logo from "../../assets/logo.png";
+import ThemeLogo from "./ThemeLogo.jsx";
 
 const NAV_ITEMS = [
   { label: "홈", href: "/" },
@@ -25,7 +25,7 @@ export default function Footer() {
           {/* 왼쪽: 로고 + 슬로건 */}
           <div className="flex min-w-0 items-center gap-3 md:min-w-[140px] md:flex-col md:items-start">
             <a href="/" className="theme-footer-link inline-block">
-              <img src={logo} alt="logo" className="theme-logo h-8 w-auto md:h-10" />
+              <ThemeLogo alt="logo" className="theme-logo h-8 w-auto md:h-10" />
             </a>
             <p
               className="max-w-56 text-[11px] leading-4 md:max-w-[160px] md:text-xs md:leading-relaxed"

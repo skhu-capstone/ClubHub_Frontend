@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
-import logo from "../assets/logo.png";
+import ThemeLogo from "../components/common/ThemeLogo.jsx";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -82,8 +82,7 @@ export default function LoginPage() {
           className="mb-6 cursor-pointer rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 dark:focus-visible:outline-theme-focus md:mb-9"
           aria-label="홈으로 이동"
         >
-          <img
-            src={logo}
+          <ThemeLogo
             alt="클럽허브"
             className="theme-logo h-20 w-auto sm:h-24 md:h-32"
           />

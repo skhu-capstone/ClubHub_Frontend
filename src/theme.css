@@ -254,18 +254,6 @@
     transform: rotate(-45deg) scale(0.6);
   }
 
-  /* A white backing preserves the original dark lettering without editing assets. */
-  .dark .theme-logo {
-    border-radius: 6px;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px #ffffff;
-  }
-
-  .dark header .theme-logo {
-    background-color: var(--theme-header);
-    box-shadow: none;
-  }
-
   .theme-footer-link {
     color: var(--theme-footer-text);
   }

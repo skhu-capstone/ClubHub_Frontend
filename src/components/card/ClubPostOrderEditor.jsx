@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { getClubPosts, updateClubPostOrder } from "../../services/clubService";
@@ -13,6 +13,9 @@ export default function ClubPostOrderEditor({ clubId, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [needsReload, setNeedsReload] = useState(false);
+  const rowRefs = useRef(new Map());
+  const previousPositions = useRef(null);
+  const rowAnimations = useRef(new Map());
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["clubPostOrder", clubId],
     queryFn: () => collectClubPosts((page) => getClubPosts({ clubId, page, size: 100 })),
@@ -24,8 +27,36 @@ export default function ClubPostOrderEditor({ clubId, onClose, onSaved }) {
   const posts = draft ?? data ?? [];
   const changed = draft !== null && draft.some((post, index) => post.postId !== data?.[index]?.postId);
 
+  useLayoutEffect(() => {
+    const positions = previousPositions.current;
+    previousPositions.current = null;
+    rowAnimations.current.forEach((animation) => animation.cancel());
+    rowAnimations.current.clear();
+    if (!positions || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    rowRefs.current.forEach((row, id) => {
+      const previousTop = positions.get(id);
+      if (previousTop === undefined) return;
+      const distance = previousTop - row.getBoundingClientRect().top;
+      if (Math.abs(distance) < 1) return;
+      const animation = row.animate(
+        [{ transform: `translateY(${distance}px)` }, { transform: "translateY(0)" }],
+        { duration: 220, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
+      );
+      rowAnimations.current.set(id, animation);
+    });
+  }, [posts]);
+
+  useLayoutEffect(() => {
+    const animations = rowAnimations.current;
+    return () => animations.forEach((animation) => animation.cancel());
+  }, []);
+
   function move(from, to) {
-    if (saving) return;
+    if (saving || from < 0 || to < 0 || from === to) return;
+    previousPositions.current = new Map(
+      Array.from(rowRefs.current, ([id, row]) => [id, row.getBoundingClientRect().top]),
+    );
     setDraft(movePost(posts, from, to));
     setError("");
   }
@@ -78,8 +109,24 @@ export default function ClubPostOrderEditor({ clubId, onClose, onSaved }) {
         <ol className="mt-5 flex flex-col gap-3">
           {posts.map((post, index) => (
             <li key={post.postId}
+              ref={(row) => {
+                if (row) rowRefs.current.set(post.postId, row);
+                else rowRefs.current.delete(post.postId);
+              }}
               onDragOver={(event) => {
-                if (!saving && draggedId !== null) event.preventDefault();
+                if (saving || draggedId === null) return;
+                event.preventDefault();
+                event.dataTransfer.dropEffect = "move";
+                const from = posts.findIndex((item) => item.postId === draggedId);
+                if (from < 0 || from === index) return;
+                // Use the final layout position so animated rows do not trigger repeated swaps.
+                const row = event.currentTarget;
+                const animation = rowAnimations.current.get(post.postId);
+                if (animation?.playState === "running") return;
+                const bounds = row.getBoundingClientRect();
+                const midpoint = bounds.top + bounds.height / 2;
+                if ((from < index && event.clientY < midpoint) || (from > index && event.clientY > midpoint)) return;
+                move(from, index);
               }}
               onDrop={(event) => {
                 event.preventDefault();
