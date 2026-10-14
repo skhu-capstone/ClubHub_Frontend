@@ -224,7 +224,22 @@ export const toggleClubPostLike = async (postId) => {
     },
   );
 
-  return response.data.data;
+  if (response.data?.success === false) {
+    throw Object.assign(new Error(response.data.message || "좋아요 변경에 실패했습니다."), { response });
+  }
+  return response.data?.data;
+};
+
+export const createClubComment = async ({ postId, content }) => {
+  const response = await axios.post(
+    `${BASE_URL}/api/posts/${postId}/comments`,
+    { content },
+    { headers: getAuthHeaders() },
+  );
+  if (response.data?.success === false) {
+    throw Object.assign(new Error(response.data.message || "댓글 작성에 실패했습니다."), { response });
+  }
+  return response.data?.data;
 };
 
 // 댓글 삭제 (작성자 권한은 서버에서 확인)

@@ -111,8 +111,12 @@ export default function Header() {
   }, [location.pathname, authLoading, user, logout, queryClient]);
 
   const handleAddAccount = () => {
+    logout();
+    queryClient.clear();
     setProfileOpen(false);
-    navigate("/login");
+    setMobileMenuOpen(false);
+    setOpenMenuLabel(null);
+    navigate("/login", { replace: true });
   };
 
   const handleLogout = () => {

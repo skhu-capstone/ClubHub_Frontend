@@ -5,6 +5,7 @@ import { getClubPosts, updateClubPostOrder } from "../../services/clubService";
 import { collectClubPosts, movePost } from "../../utils/clubPostOrder";
 import { DEFAULT_FEED_IMAGE, getContentImageUrl } from "../../utils/imageUtils";
 import SafeImage from "../common/SafeImage";
+import { getPostActionErrorMessage, isPostActionResultUnknown } from "../../utils/postActionErrors";
 
 export default function ClubPostOrderEditor({ clubId, onClose, onSaved }) {
   const queryClient = useQueryClient();
@@ -74,8 +75,8 @@ export default function ClubPostOrderEditor({ clubId, onClose, onSaved }) {
         POST_ORDER_FORBIDDEN: "동아리 대표 또는 운영진만 게시물 순서를 변경할 수 있습니다.",
         CLUB_NOT_FOUND: "동아리를 찾을 수 없습니다.",
       };
-      setNeedsReload(code === "POST_ORDER_INVALID");
-      setError(messages[code] || error.response?.data?.message || error.message || "순서를 저장하지 못했습니다. 다시 시도해주세요.");
+      setNeedsReload(code === "POST_ORDER_INVALID" || isPostActionResultUnknown(error));
+      setError(messages[code] || getPostActionErrorMessage(error, "순서를 저장하지 못했습니다. 다시 시도해주세요."));
       setSaving(false);
       return;
     }

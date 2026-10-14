@@ -15,6 +15,7 @@ import {
 import {
   deleteClubPost,
   deleteClubComment,
+  createClubComment,
   getClubPostDetail,
   toggleClubPostLike,
   updateClubPost,
@@ -23,13 +24,13 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../context/AuthContext";
 import { canEditClubPost, canDeletePost } from "../../utils/postPermissions";
+import { getPostActionErrorMessage } from "../../utils/postActionErrors";
 import {
   DEFAULT_FEED_IMAGE,
   getContentImageUrl,
   isValidImageUrl,
 } from "../../utils/imageUtils";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const MAX_POST_IMAGE_COUNT = 5;
 const MAX_POST_IMAGE_SIZE = 20 * 1024 * 1024;
 
@@ -444,7 +445,7 @@ export default function ClubPostDetail() {
       ? "본인이 작성한 댓글만 삭제할 수 있습니다."
       : deleteCommentMutation.error.response?.status === 401
         ? "로그인이 만료되었습니다. 다시 로그인해주세요."
-        : deleteCommentMutation.error.response?.data?.message || "댓글 삭제에 실패했습니다. 다시 시도해주세요."
+        : getPostActionErrorMessage(deleteCommentMutation.error, "댓글 삭제에 실패했습니다. 다시 시도해주세요.")
     : "";
 
   // ── 게시글 조회 (React Query) ──────────────────────────────────────────
@@ -463,20 +464,21 @@ export default function ClubPostDetail() {
   // ── 좋아요 토글 (React Query) ──────────────────────────────────────────
   const likeMutation = useMutation({
     mutationFn: () => toggleClubPostLike(currentPostId),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // 서버 응답으로 캐시 즉시 업데이트
       queryClient.setQueryData(["clubPostDetail", currentPostId], (old) => {
         if (!old) return old;
         return {
           ...old,
-          liked: data.liked ?? data.isLiked ?? !old.liked,
-          likeCount: data.likeCount ?? data.likes ?? old.likeCount,
+          liked: data?.liked ?? data?.isLiked ?? !(old.liked ?? old.isLiked ?? false),
+          likeCount: data?.likeCount ?? data?.likes ?? old.likeCount,
         };
       });
       // 혹시 모르니 서버에서 다시 불러오기 예약
-      queryClient.invalidateQueries({
-        queryKey: ["clubPostDetail", currentPostId],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["clubPostDetail", currentPostId] }),
+        queryClient.invalidateQueries({ queryKey: ["clubPosts"] }),
+      ]);
     },
     onError: (err) => {
       console.error("[ClubPostDetail] Like mutation error:", err);
@@ -485,40 +487,24 @@ export default function ClubPostDetail() {
 
   // ── 댓글 작성 (React Query) ────────────────────────────────────────────
   const commentMutation = useMutation({
-    mutationFn: async (content) => {
-      const token = localStorage.getItem("accessToken");
-      const res = await fetch(
-        `${API_BASE_URL}/api/posts/${currentPostId}/comments`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ content }),
-        },
-      );
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "댓글 작성에 실패했습니다.");
-      }
-      return data.data;
-    },
-    onSuccess: (newComment) => {
+    mutationFn: (content) => createClubComment({ postId: currentPostId, content }),
+    onSuccess: async (newComment) => {
       setCommentText("");
       // 캐시 즉시 업데이트
       queryClient.setQueryData(["clubPostDetail", currentPostId], (old) => {
-        if (!old) return old;
+        if (!old || !newComment) return old;
         const currentComments = old.comments || old.postComments || [];
         return {
           ...old,
           comments: [...currentComments, newComment],
+          ...(old.postComments ? { postComments: [...currentComments, newComment] } : {}),
         };
       });
       // 서버에서 다시 불러오기 예약
-      queryClient.invalidateQueries({
-        queryKey: ["clubPostDetail", currentPostId],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["clubPostDetail", currentPostId] }),
+        queryClient.invalidateQueries({ queryKey: ["clubPosts"] }),
+      ]);
       commentInputRef.current?.focus();
     },
     onError: (err) => {
@@ -695,6 +681,12 @@ export default function ClubPostDetail() {
           </div>
         </div>
 
+        {likeMutation.isError && (
+          <p role="alert" className="mt-2 text-sm text-red-500 dark:text-theme-danger">
+            {getPostActionErrorMessage(likeMutation.error, "좋아요 변경에 실패했습니다. 다시 시도해주세요.")}
+          </p>
+        )}
+
         <div className="bg-white dark:bg-theme-surface rounded-2xl shadow-sm dark:shadow-theme-shadow px-4 py-4 sm:px-6 sm:py-5 mt-2 flex flex-col gap-4">
           <p className="text-sm font-semibold text-gray-700 dark:text-theme-secondary">
             댓글
@@ -726,7 +718,9 @@ export default function ClubPostDetail() {
           )}
 
           {commentMutation.isError && (
-            <p className="text-xs text-red-500 dark:text-theme-danger">댓글 작성에 실패했습니다.</p>
+            <p role="alert" className="text-xs text-red-500 dark:text-theme-danger">
+              {getPostActionErrorMessage(commentMutation.error, "댓글 작성에 실패했습니다. 다시 시도해주세요.")}
+            </p>
           )}
 
           <div
