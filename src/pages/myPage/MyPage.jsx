@@ -58,6 +58,14 @@ export default function MyPage() {
     queryFn: getMyPage,
     enabled: isAuthenticated,
   })
+  const hasSavedProfile = data?.coffeeChatProfile != null;
+
+  const getProfileErrorMessage = (error, fallback) => {
+    const status = error.response?.status;
+    if (status === 401) return "로그인이 만료되었습니다. 다시 로그인해주세요.";
+    if (!error.response) return "네트워크 연결을 확인한 후 다시 시도해주세요.";
+    return error.response?.data?.message || fallback;
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -152,8 +160,16 @@ export default function MyPage() {
   // 커피챗 프로필 저장
     const updateProfileMutation = useMutation({
       mutationFn: updateCoffeeChatProfile,
-      onSuccess: () => {
-        setProfile(tempProfile);
+      onSuccess: (result, submittedProfile) => {
+        queryClient.setQueryData(["myPage"], (prev) => prev ? {
+          ...prev,
+          coffeeChatProfile: {
+            ...prev.coffeeChatProfile,
+            ...submittedProfile,
+            ...(result && typeof result === "object" ? result : {}),
+            isPublic: result?.isPublic ?? prev.coffeeChatProfile?.isPublic ?? false,
+          },
+        } : prev);
         setIsEditing(false);
         queryClient.invalidateQueries({ queryKey: ["myPage"] });
         setPageNotice({ type: "success", text: "커피챗 프로필을 저장했습니다." });
@@ -163,7 +179,7 @@ export default function MyPage() {
         console.error(error);
         setPageNotice({
           type: "error",
-          text: error.response?.data?.message ?? "프로필 저장에 실패했습니다. 다시 시도해주세요.",
+          text: getProfileErrorMessage(error, "프로필 저장에 실패했습니다. 입력 내용을 확인해주세요."),
         });
       },
     });
@@ -172,6 +188,11 @@ export default function MyPage() {
   const updateVisibilityMutation = useMutation({
     mutationFn: updateCoffeeChatVisibility,
     onSuccess: (_, nextVisible) => {
+      setIsVisible(nextVisible);
+      queryClient.setQueryData(["myPage"], (prev) => prev?.coffeeChatProfile ? {
+        ...prev,
+        coffeeChatProfile: { ...prev.coffeeChatProfile, isPublic: nextVisible },
+      } : prev);
       setPageNotice({
         type: "success",
         text: nextVisible ? "커피챗 프로필을 공개했습니다." : "커피챗 프로필을 비공개로 전환했습니다.",
@@ -179,8 +200,10 @@ export default function MyPage() {
     },
     onError: (error) => {
       console.error(error);
-      setIsVisible((prev) => !prev);
-      setPageNotice({ type: "error", text: "공개 여부 변경에 실패했습니다. 다시 시도해주세요." });
+      setPageNotice({ type: "error", text: getProfileErrorMessage(error,
+        error.response?.status === 404
+          ? "프로필을 먼저 작성하고 저장한 후 공개해주세요."
+          : "공개 여부 변경에 실패했습니다. 다시 시도해주세요."), });
     },
   });
 
@@ -221,7 +244,7 @@ export default function MyPage() {
 
   // 저장 버튼 클릭시 put 호출
   const handleSave = () => {
-    if (updateProfileMutation.isPending) return;
+    if (updateProfileMutation.isPending || updateVisibilityMutation.isPending) return;
     setPageNotice(null);
     updateProfileMutation.mutate({
       studentId: tempProfile.studentId,
@@ -235,10 +258,14 @@ export default function MyPage() {
 
   // 토글 클릭시 patch 호출
   const handleToggleVisibility = () => {
-    if (updateVisibilityMutation.isPending) return;
+    if (updateVisibilityMutation.isPending || updateProfileMutation.isPending) return;
+    if (!hasSavedProfile) {
+      setPageNotice({ type: "error", text: "프로필을 먼저 작성하고 저장한 후 공개해주세요." });
+      setIsEditing(true);
+      return;
+    }
     setPageNotice(null);
     const nextVisible = !isVisible;
-    setIsVisible(nextVisible);
     updateVisibilityMutation.mutate(nextVisible);
   };
 
@@ -490,7 +517,7 @@ export default function MyPage() {
               <button
                 type="button"
                 onClick={handleToggleVisibility}
-                disabled={updateVisibilityMutation.isPending}
+                disabled={updateVisibilityMutation.isPending || updateProfileMutation.isPending}
                 role="switch"
                 aria-checked={isVisible}
                 aria-label="커피챗 프로필 공개 여부"
@@ -524,7 +551,7 @@ export default function MyPage() {
                     label="학번"
                     value={tempProfile.studentId}
                     onChange={(e) => handleChange("studentId", e.target.value)}
-                    disabled={updateProfileMutation.isPending}
+                    disabled={updateProfileMutation.isPending || updateVisibilityMutation.isPending}
                   />
 
                   <EditInputLabel
@@ -630,7 +657,7 @@ export default function MyPage() {
                   onClick={handleEdit}
                   className="min-h-12 rounded-xl bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700 dark:bg-theme-primary dark:hover:bg-theme-primary-hover sm:min-w-24"
                 >
-                  수정
+                  {hasSavedProfile ? "수정" : "프로필 작성"}
                 </button>
               )}
             </div>

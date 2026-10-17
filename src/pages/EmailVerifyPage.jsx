@@ -10,6 +10,10 @@ import { useAuth } from "../context/AuthContext";
 
 const CODE_LENGTH = 5;
 const RESEND_COOLDOWN_SECONDS = 60;
+const CODE_VALIDITY_MS = 10 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const MAX_ATTEMPTS = 5;
+const MAX_SENDS = 10;
 
 const getErrorMessage = (error, fallback) =>
   error?.response?.data?.message || error?.message || fallback;
@@ -32,7 +36,15 @@ export default function EmailVerifyPage() {
   const [schoolEmail, setSchoolEmail] = useState("");
   const [code, setCode] = useState(() => Array(CODE_LENGTH).fill(""));
   const [isCodeSent, setIsCodeSent] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
+  const [verification, setVerification] = useState({ sends: [], retryAt: 0, expiresAt: 0, attempts: 0 });
+  const [now, setNow] = useState(Date.now);
+  const [restoredKey, setRestoredKey] = useState(null);
+  const storageKey = user ? `school-email-verification:${user.userId ?? user.id ?? user.email}` : null;
+  const cooldown = Math.max(0, Math.ceil((verification.retryAt - now) / 1000));
+  const remainingSeconds = Math.max(0, Math.ceil((verification.expiresAt - now) / 1000));
+  const activeSends = verification.sends.filter((time) => time > now - DAY_MS);
+  const sendLimitReached = activeSends.length >= MAX_SENDS;
+  const codeBlocked = verification.attempts >= MAX_ATTEMPTS || remainingSeconds === 0;
   const [notice, setNotice] = useState(null);
   const inputRefs = useRef([]);
 
@@ -54,30 +66,71 @@ export default function EmailVerifyPage() {
   }, [authLoading, isAuthenticated, navigate, returnPath, user?.isVerified]);
 
   useEffect(() => {
-    if (cooldown <= 0) return undefined;
+    if (!storageKey) return;
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(storageKey)); } catch { /* Ignore unavailable storage. */ }
+    const frame = window.requestAnimationFrame(() => {
+    if (saved && Array.isArray(saved.sends)) {
+      setVerification({ ...saved, sends: saved.sends.filter(Number.isFinite) });
+      if (saved.email) {
+        setSchoolEmail(saved.email);
+        setIsCodeSent(true);
+      }
+    }
+    setRestoredKey(storageKey);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [storageKey]);
 
-    const timer = window.setInterval(() => {
-      setCooldown((current) => Math.max(0, current - 1));
-    }, 1000);
+  useEffect(() => {
+    if (!storageKey || restoredKey !== storageKey) return;
+    try { localStorage.setItem(storageKey, JSON.stringify(verification)); } catch { /* Server limits still apply. */ }
+  }, [storageKey, restoredKey, verification]);
 
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, [cooldown]);
+  }, []);
+
+  const recordSend = () => {
+    const sentAt = Date.now();
+    setNow(sentAt);
+    setVerification((prev) => ({
+      email: normalizedSchoolEmail,
+      sends: [...prev.sends.filter((time) => time > sentAt - DAY_MS), sentAt],
+      retryAt: sentAt + RESEND_COOLDOWN_SECONDS * 1000,
+      expiresAt: sentAt + CODE_VALIDITY_MS,
+      attempts: 0,
+    }));
+    setCode(Array(CODE_LENGTH).fill(""));
+  };
+
+  const handleSendError = (error, fallback) => {
+    const message = getErrorMessage(error, fallback);
+    const dailyLimit = /24시간|10회|daily|day.*limit/i.test(message);
+    const retryAfter = Number(error.response?.headers?.["retry-after"]);
+    if (dailyLimit || error.response?.status === 429 || /1분|60초/.test(message)) {
+      const delay = Number.isFinite(retryAfter) && retryAfter > 0
+        ? retryAfter * 1000 : RESEND_COOLDOWN_SECONDS * 1000;
+      setVerification((prev) => ({ ...prev, retryAt: Date.now() + delay }));
+    }
+    setNotice({ type: "error", text: dailyLimit
+      ? "24시간 내 발송 한도 10회를 모두 사용했습니다. 발송 한도가 복구된 후 다시 시도해주세요."
+      : message });
+  };
 
   const sendCodeMutation = useMutation({
     mutationFn: sendSchoolEmailCode,
     onMutate: () => setNotice(null),
     onSuccess: () => {
       setIsCodeSent(true);
-      setCooldown(RESEND_COOLDOWN_SECONDS);
+      recordSend();
       setNotice({ type: "success", text: "인증번호를 전송했습니다. 이메일을 확인해주세요." });
       window.requestAnimationFrame(() => inputRefs.current[0]?.focus());
     },
     onError: (error) => {
       console.error(error);
-      setNotice({
-        type: "error",
-        text: getErrorMessage(error, "인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요."),
-      });
+      handleSendError(error, "인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
     },
   });
 
@@ -85,6 +138,9 @@ export default function EmailVerifyPage() {
     mutationFn: verifySchoolEmailCode,
     onMutate: () => setNotice(null),
     onSuccess: () => {
+      if (storageKey) {
+        try { localStorage.removeItem(storageKey); } catch { /* Ignore unavailable storage. */ }
+      }
       if (user) {
         setAuthenticatedUser({
           ...user,
@@ -97,6 +153,17 @@ export default function EmailVerifyPage() {
     },
     onError: (error) => {
       console.error(error);
+      const message = String(error.response?.data?.message ?? "");
+      const errorCode = String(error.response?.data?.code ?? "");
+      const exhausted = /attempt.*(limit|exceed)|too_many_attempt/i.test(errorCode) || /횟수.*(초과|소진)|5회/.test(message);
+      const expired = /expir/i.test(errorCode) || /만료/.test(message);
+      const mismatch = /mismatch|invalid.*code|incorrect/i.test(errorCode) || /일치하지|올바르지|틀렸|불일치/.test(message);
+      if (exhausted || expired || mismatch) {
+        setVerification((prev) => ({ ...prev,
+          attempts: exhausted ? MAX_ATTEMPTS : prev.attempts + (mismatch ? 1 : 0),
+          expiresAt: expired ? 0 : prev.expiresAt,
+        }));
+      }
       setNotice({
         type: "error",
         text: getErrorMessage(error, "인증번호가 올바르지 않거나 만료되었습니다."),
@@ -109,16 +176,13 @@ export default function EmailVerifyPage() {
     onMutate: () => setNotice(null),
     onSuccess: () => {
       setCode(Array(CODE_LENGTH).fill(""));
-      setCooldown(RESEND_COOLDOWN_SECONDS);
+      recordSend();
       setNotice({ type: "success", text: "인증번호를 다시 전송했습니다." });
       window.requestAnimationFrame(() => inputRefs.current[0]?.focus());
     },
     onError: (error) => {
       console.error(error);
-      setNotice({
-        type: "error",
-        text: getErrorMessage(error, "인증번호 재전송에 실패했습니다. 잠시 후 다시 시도해주세요."),
-      });
+      handleSendError(error, "인증번호 재전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
     },
   });
 
@@ -175,13 +239,13 @@ export default function EmailVerifyPage() {
 
   const handleSendCode = (event) => {
     event.preventDefault();
-    if (!isAuthenticated || !isValidSchoolEmail || sendCodeMutation.isPending) return;
+    if (!isAuthenticated || !isValidSchoolEmail || sendCodeMutation.isPending || isCodeSent || cooldown > 0 || sendLimitReached || restoredKey !== storageKey) return;
     sendCodeMutation.mutate(normalizedSchoolEmail);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!isAuthenticated || !isCodeSent || !isCodeComplete || verifyCodeMutation.isPending) return;
+    if (!isAuthenticated || !isCodeSent || !isCodeComplete || codeBlocked || verifyCodeMutation.isPending || resendCodeMutation.isPending) return;
 
     verifyCodeMutation.mutate({
       schoolEmail: normalizedSchoolEmail,
@@ -190,14 +254,14 @@ export default function EmailVerifyPage() {
   };
 
   const handleResendCode = () => {
-    if (!isAuthenticated || cooldown > 0 || resendCodeMutation.isPending) return;
+    if (!isAuthenticated || cooldown > 0 || sendLimitReached || resendCodeMutation.isPending || verifyCodeMutation.isPending) return;
     resendCodeMutation.mutate(normalizedSchoolEmail);
   };
 
   const handleChangeEmail = () => {
     setIsCodeSent(false);
     setCode(Array(CODE_LENGTH).fill(""));
-    setCooldown(0);
+    setVerification((prev) => ({ ...prev, email: null, expiresAt: 0, attempts: 0 }));
     setNotice(null);
     sendCodeMutation.reset();
     resendCodeMutation.reset();
@@ -257,14 +321,14 @@ export default function EmailVerifyPage() {
           <div className="mt-4 flex gap-2">
             <button
               type="submit"
-              disabled={!isValidSchoolEmail || isCodeSent || sendCodeMutation.isPending}
+              disabled={!isValidSchoolEmail || isCodeSent || sendCodeMutation.isPending || cooldown > 0 || sendLimitReached || restoredKey !== storageKey}
               className="h-12 min-w-0 flex-1 touch-manipulation rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white transition-colors enabled:cursor-pointer enabled:hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-theme-primary dark:enabled:hover:bg-theme-primary-hover dark:focus-visible:outline-theme-focus sm:text-base"
             >
               {sendCodeMutation.isPending
                 ? "전송 중..."
                 : isCodeSent
                   ? "전송 완료"
-                  : "인증번호 발송"}
+                  : cooldown > 0 ? `발송 가능까지 ${cooldown}초` : "인증번호 발송"}
             </button>
             {isCodeSent && (
               <button
@@ -285,11 +349,25 @@ export default function EmailVerifyPage() {
           <div className="text-center">
             <h2 className="text-xl font-bold text-gray-900 dark:text-theme-text sm:text-2xl">인증번호</h2>
             <p className="mt-2 break-keep text-sm leading-6 text-slate-600 dark:text-theme-muted">
-              이메일로 전송된 {CODE_LENGTH}자리 숫자를 입력해주세요.
+              이메일로 전송된 {CODE_LENGTH}자리 숫자를 입력해주세요. 유효시간은 10분입니다.
             </p>
+            <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-theme-muted">
+              재발송은 1분 후 가능하며, 인증번호당 최대 5회 확인할 수 있습니다.<br />
+              24시간 내 발송은 최대 10회입니다.
+            </p>
+            {isCodeSent && <p className="mt-3 text-sm font-medium text-slate-600 dark:text-theme-muted" role="status">
+              {verification.attempts >= MAX_ATTEMPTS
+                ? "입력 가능 횟수를 모두 사용했습니다. 인증번호를 다시 발송해주세요."
+                : remainingSeconds === 0
+                  ? "인증번호가 만료되었습니다. 다시 발송해주세요."
+                  : `남은 시간 ${Math.floor(remainingSeconds / 60)}:${String(remainingSeconds % 60).padStart(2, "0")} · 남은 확인 횟수 ${MAX_ATTEMPTS - verification.attempts}회`}
+            </p>}
+            {sendLimitReached && <p className="mt-3 text-sm text-red-600 dark:text-theme-danger" role="alert">
+              24시간 내 발송 한도 10회를 모두 사용했습니다. {new Date(activeSends[0] + DAY_MS).toLocaleString("ko-KR")} 이후 다시 시도해주세요.
+            </p>}
           </div>
 
-          <fieldset className="mt-6" disabled={!isCodeSent || verifyCodeMutation.isPending}>
+          <fieldset className="mt-6" disabled={!isCodeSent || codeBlocked || verifyCodeMutation.isPending || resendCodeMutation.isPending}>
             <legend className="sr-only">{CODE_LENGTH}자리 인증번호</legend>
             <div
               className="mx-auto grid w-full max-w-sm grid-cols-5 gap-2 sm:gap-3"
@@ -332,7 +410,7 @@ export default function EmailVerifyPage() {
 
           <button
             type="submit"
-            disabled={!isCodeSent || !isCodeComplete || verifyCodeMutation.isPending}
+            disabled={!isCodeSent || !isCodeComplete || codeBlocked || verifyCodeMutation.isPending || resendCodeMutation.isPending}
             className="mt-2 h-12 w-full touch-manipulation rounded-xl bg-blue-600 px-4 text-base font-semibold text-white transition-colors enabled:cursor-pointer enabled:hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-theme-primary dark:enabled:hover:bg-theme-primary-hover dark:focus-visible:outline-theme-focus"
           >
             {verifyCodeMutation.isPending ? "인증 중..." : "인증 완료"}
@@ -345,7 +423,7 @@ export default function EmailVerifyPage() {
             <button
               type="button"
               onClick={handleResendCode}
-              disabled={cooldown > 0 || resendCodeMutation.isPending || verifyCodeMutation.isPending}
+              disabled={cooldown > 0 || sendLimitReached || resendCodeMutation.isPending || verifyCodeMutation.isPending}
               className="mt-1 min-h-11 touch-manipulation px-2 text-sm font-semibold text-blue-600 underline-offset-4 enabled:cursor-pointer enabled:hover:underline focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:text-slate-400 dark:text-theme-link dark:focus-visible:outline-theme-focus dark:disabled:text-theme-muted"
             >
               {resendCodeMutation.isPending
