@@ -6,7 +6,6 @@ function CollaboCard({
   type = "club", // 협업 게시글 관련 props
   title = "제목", // title 받아옴
   author = "작성자", // writerName 받아옴
-  time = "n시간 전", // createAt 받아서 계산하는 기능 제작 예정
   content = "내용", // content 받아옴
   dDay = "D-00", // dDay 받아옴
   onClick,
@@ -43,10 +42,10 @@ function CollaboCard({
         <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:text-emerald-600 dark:text-theme-muted dark:group-hover:text-theme-link" aria-hidden="true" />
       </div>
 
-      {/* 작성자, 시간 */}
+      {/* 작성자 */}
       <div className="flex min-w-0 justify-start border-b border-slate-100 pb-2 dark:border-theme-border">
         <span className="max-w-full truncate text-left text-xs font-medium text-slate-500 dark:text-theme-muted md:text-sm">
-          {author} · {time}
+          {author}
         </span>
       </div>
 
