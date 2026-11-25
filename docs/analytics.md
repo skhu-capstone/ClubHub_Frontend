@@ -8,12 +8,12 @@ ClubHub는 Vite, React, React Router를 사용하는 SPA다. 화면은 `src/page
 | --- | --- |
 | `VITE_GA_MEASUREMENT_ID` | 운영 웹 스트림의 GA4 측정 ID |
 | `VITE_GA_PRODUCTION_ORIGIN` | 운영 사이트의 정확한 origin. 현재 `https://www.clubhubb.co.kr`이며 마지막 슬래시는 생략한다. |
-| `VITE_GA_REQUIRE_CONSENT` | 기본값은 동의 필요. `false`는 운영 정책상 방문 시 분석 시작이 허용되는 경우에 사용한다. |
+| `VITE_GA_REQUIRE_CONSENT` | `analytics-debug` 모드에서만 `false`로 설정해 동의 전에 테스트할 수 있다. 운영에서 동의는 항상 필요하다. |
 | `VITE_GA_DEBUG_MEASUREMENT_ID` | 별도의 테스트 GA4 속성에 속한 웹 스트림 ID. `analytics-debug` 모드에서 사용한다. |
 
 Vite는 빌드 시 이 값을 읽으므로 운영 배포 환경에 값을 추가한 뒤 다시 빌드하고 배포한다. 운영 태그는 프로덕션 빌드가 지정된 origin에서 열릴 때만 실행된다. 일반 개발 서버와 다른 origin의 프리뷰에서는 수집이 꺼진다.
 
-동의가 필요한 경우 현재 서비스의 UI를 유지하기 위해 동의 화면은 추가하지 않았다. 동의 관리 도구 연동 시 선택을 읽고 변경될 때마다 `setAnalyticsConsent(granted)`를 호출한다. 동의 전에는 태그를 로드하지 않는다. 동의 시 현재 페이지부터 계측하며, 철회 시 해당 측정 ID에 대한 전송을 중지한다. 동의 선택의 저장 및 복원은 동의 관리 도구가 담당한다.
+선택 기록이 없는 브라우저에서는 로그인 후 이용 통계 수집 동의 배너가 나타난다. 선택은 브라우저에 저장되며, 푸터의 **분석 설정**에서 언제든 수정할 수 있다. 동의 전에는 태그를 로드하지 않는다. 동의 시 현재 페이지부터 계측하며, 거부하거나 동의를 철회하면 이후 전송을 중지한다. 선택은 같은 브라우저에서 로그인 상태와 관계없이 유지된다.
 
 ## GA4 관리자 설정
 

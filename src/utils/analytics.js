@@ -15,7 +15,7 @@ const eventParameters = {
   coffee_chat_opened: { entry_point: ["profile", "club_collaboration", "project_recruitment"] },
 };
 
-let hasConsent = env.VITE_GA_REQUIRE_CONSENT === "false";
+let hasConsent = debug && env.VITE_GA_REQUIRE_CONSENT === "false";
 let currentPage;
 let lastPage;
 let tag;

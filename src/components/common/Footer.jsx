@@ -1,4 +1,5 @@
 import { GitFork, Mail, Code2, Server } from "lucide-react";
+import AnalyticsConsent from "./AnalyticsConsent";
 import ThemeLogo from "./ThemeLogo.jsx";
 
 const NAV_ITEMS = [
@@ -143,6 +144,7 @@ export default function Footer() {
             >
               개인정보처리방침
             </a>
+            <AnalyticsConsent />
           </div>
         </div>
 
