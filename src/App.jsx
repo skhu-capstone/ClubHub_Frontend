@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import AnalyticsPage from "./components/common/AnalyticsPage";
 import Header from "./components/common/Header";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/home/MainPage";
@@ -21,35 +22,46 @@ import ClubDetailPage from "./pages/club/ClubDetailPage";
 import VerifiedRoute from "./components/common/VerifiedRoute";
 import NotificationsPage from "./pages/notifications/NotificationsPage";
 import NotificationEventPage from "./pages/notifications/NotificationEventPage";
+
+function page(path, element) {
+  return (
+    <Route
+      key={path}
+      path={path}
+      element={<AnalyticsPage route={path}>{element}</AnalyticsPage>}
+    />
+  );
+}
+
 export default function App() {
   return (
     <>
       <Header />
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/email-verify" element={<EmailVerifyPage />} />
+        {page("/login", <LoginPage />)}
+        {page("/email-verify", <EmailVerifyPage />)}
         <Route element={<VerifiedRoute allowGuest />}>
-          <Route path="/" element={<MainPage />} />
-          <Route path="/cooperation" element={<CooperationPage />} />
+          {page("/", <MainPage />)}
+          {page("/cooperation", <CooperationPage />)}
         </Route>
         <Route element={<VerifiedRoute />}>
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/notifications/events/:eventId" element={<NotificationEventPage />} />
-          <Route path="/coffee-chat" element={<CoffeeChatPage />} />
-          <Route path="/club/main" element={<ClubMainPage />} />
-          <Route path="/club/main/:clubId" element={<ClubMainPage />} />
-          <Route path="/club/apply" element={<ClubApplicationPage />} />
-          <Route path="/club/apply/:clubId" element={<ClubDetailPage />} />
-          <Route path="/club/create" element={<ClubCreationPage />} />
-          <Route path="/my-page" element={<MyPage />} />
-          <Route path="/coffee-chat/profile/:userId" element={<CoffeeChatProfilePage />} />
-          <Route path="/coffee-chat/user-list" element={<CoffeeChatUserListPage />} />
-          <Route path="/club/post" element={<ClubPostPage />} />
-          <Route path="/club/president/:clubId" element={<PresidentPage />} />
-          <Route path="/clubs/:clubId/posts/create" element={<ClubPostCreatePage />} />
-          <Route path="/clubs/:clubId/posts/:postId" element={<ClubPostDetail />} />
-          <Route path="/cooperation/:type/:id" element={<PostDetailPage />} />
-          <Route path="/club/posts/:id" element={<ClubPostDetail />} />
+          {page("/notifications", <NotificationsPage />)}
+          {page("/notifications/events/:eventId", <NotificationEventPage />)}
+          {page("/coffee-chat", <CoffeeChatPage />)}
+          {page("/club/main", <ClubMainPage />)}
+          {page("/club/main/:clubId", <ClubMainPage />)}
+          {page("/club/apply", <ClubApplicationPage />)}
+          {page("/club/apply/:clubId", <ClubDetailPage />)}
+          {page("/club/create", <ClubCreationPage />)}
+          {page("/my-page", <MyPage />)}
+          {page("/coffee-chat/profile/:userId", <CoffeeChatProfilePage />)}
+          {page("/coffee-chat/user-list", <CoffeeChatUserListPage />)}
+          {page("/club/post", <ClubPostPage />)}
+          {page("/club/president/:clubId", <PresidentPage />)}
+          {page("/clubs/:clubId/posts/create", <ClubPostCreatePage />)}
+          {page("/clubs/:clubId/posts/:postId", <ClubPostDetail />)}
+          {page("/cooperation/:type/:id", <PostDetailPage />)}
+          {page("/club/posts/:id", <ClubPostDetail />)}
         </Route>
       </Routes>
       <Footer />

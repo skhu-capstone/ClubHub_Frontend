@@ -6,6 +6,7 @@ import SafeImage from "../../components/common/SafeImage";
 import { getContentImageUrl } from "../../utils/imageUtils";
 import { useAuth } from "../../context/AuthContext";
 import { isOwnRecruitment } from "../../utils/recruitmentOwnership";
+import { trackEvent } from "../../utils/analytics";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -192,6 +193,7 @@ function ClubPostDetail({ id, onBack }) {
       console.log("채팅방 생성 응답", data);
 
       if (data.success) {
+        if (data.data?.chatRoomId) trackEvent("coffee_chat_opened", { entry_point: "club_collaboration" });
         navigate("/coffee-chat", {
           state: {
             roomId: data.data.chatRoomId,
@@ -289,6 +291,7 @@ function ProjectPostDetail({ id, onBack }) {
       });
       const data = await res.json();
       if (data.success) {
+        if (data.data?.chatRoomId) trackEvent("coffee_chat_opened", { entry_point: "project_recruitment" });
         navigate("/coffee-chat", {
           state: {
             roomId: data.data.chatRoomId,

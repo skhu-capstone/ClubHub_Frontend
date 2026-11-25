@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertCircle, Loader2, Plus } from "lucide-react";
 import { createClub, uploadClubImage } from "../../services/clubService";
 import ImageFilePicker from "../../components/common/ImageFilePicker";
+import { trackEvent } from "../../utils/analytics";
 
 const INITIAL_FORM = {
   clubName: "",
@@ -68,6 +69,7 @@ export default function ClubCreationPage() {
 
     try {
       const createdClub = await createClub(payload);
+      trackEvent("club_created");
 
       let imageUploadFailed = false;
       if (imageFile) {

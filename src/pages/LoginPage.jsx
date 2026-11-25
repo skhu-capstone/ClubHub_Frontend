@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import ThemeLogo from "../components/common/ThemeLogo.jsx";
+import { trackEvent } from "../utils/analytics";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function LoginPage() {
     },
 
     onSuccess: (userData) => {
+      trackEvent("login", { method: "google" });
       if (userData.isVerified) {
         navigate(returnPath, { replace: true });
       } else {

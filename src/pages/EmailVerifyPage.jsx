@@ -7,6 +7,7 @@ import {
   verifySchoolEmailCode,
 } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { trackEvent } from "../utils/analytics";
 
 const CODE_LENGTH = 5;
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -138,6 +139,7 @@ export default function EmailVerifyPage() {
     mutationFn: verifySchoolEmailCode,
     onMutate: () => setNotice(null),
     onSuccess: () => {
+      trackEvent("school_email_verified");
       if (storageKey) {
         try { localStorage.removeItem(storageKey); } catch { /* Ignore unavailable storage. */ }
       }

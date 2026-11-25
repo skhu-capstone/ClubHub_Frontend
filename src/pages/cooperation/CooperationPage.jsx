@@ -13,6 +13,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import useMyClubs from "../../hooks/useMyClubs";
 import { useAuth } from "../../context/AuthContext";
+import { trackEvent } from "../../utils/analytics";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -186,6 +187,7 @@ function CreateClubCollabModal({ onClose: closeModal, onSuccess }) {
         if (!res.ok || !data.success) throw new Error(data.message || "등록에 실패했습니다.");
         savedPost = data.data;
         setCreatedPost(savedPost);
+        trackEvent("recruitment_created", { recruitment_type: "club" });
       }
       if (imageFile) {
         if (!savedPost?.collabId) throw new Error("모집글 번호를 확인할 수 없습니다. 목록에서 확인해주세요.");
@@ -480,6 +482,7 @@ function CreateProjectModal({ onClose: closeModal, onSuccess }) {
         if (!res.ok || !data.success) throw new Error(data.message || "등록에 실패했습니다.");
         savedPost = data.data;
         setCreatedPost(savedPost);
+        trackEvent("recruitment_created", { recruitment_type: "project" });
       }
       if (imageFile) {
         if (!savedPost?.projectRecruitmentId) throw new Error("모집글 번호를 확인할 수 없습니다. 목록에서 확인해주세요.");
@@ -753,6 +756,7 @@ export default function CooperationPage() {
   }, [tab]);
 
   function handleSearch() {
+    if (searchInput.trim()) trackEvent("recruitment_search", { recruitment_type: tab });
     setSearch(searchInput);
     if (isClub) fetchClubPosts(searchInput);
     else fetchProjectPosts(searchInput);
@@ -770,6 +774,7 @@ export default function CooperationPage() {
       return;
     }
 
+    trackEvent("recruitment_form_opened", { recruitment_type: tab });
     if (isClub) setShowClubModal(true);
     else setShowProjectModal(true);
   }

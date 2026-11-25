@@ -8,6 +8,7 @@ import { getCoffeeChatProfile } from "../../services/coffeeChatProfileService";
 import { useAuth } from "../../context/AuthContext";
 import { getProfileImageUrl } from "../../utils/imageUtils";
 import { MEETING_TYPE_LABELS } from "../../utils/meetingType";
+import { trackEvent } from "../../utils/analytics";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -71,6 +72,7 @@ export default function CoffeeChatProfilePage() {
       const result = await response.json().catch(() => null);
 
       if (response.ok && result?.success && result.data?.chatRoomId) {
+        trackEvent("coffee_chat_opened", { entry_point: "profile" });
         navigate("/coffee-chat", { state: { roomId: result.data.chatRoomId } });
         return;
       }

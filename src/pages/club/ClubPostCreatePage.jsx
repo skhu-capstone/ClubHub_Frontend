@@ -10,6 +10,7 @@ import {
 } from "../../services/clubService";
 import { useAuth } from "../../context/AuthContext";
 import PostNoticeCheckbox from "../../components/common/PostNoticeCheckbox";
+import { trackEvent } from "../../utils/analytics";
 
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg"];
 const MAX_IMAGE_SIZE = 20 * 1024 * 1024;
@@ -224,6 +225,7 @@ export default function ClubPostCreatePage() {
     mutationFn: createClubPost,
 
     onSuccess: async (createdPost) => {
+      trackEvent("club_post_created");
       if (imageFiles.length > 0) {
         let uploadedCount = 0;
         setUploadProgress({ uploaded: 0, total: imageFiles.length });

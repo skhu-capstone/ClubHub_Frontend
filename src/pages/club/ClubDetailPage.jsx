@@ -18,6 +18,7 @@ import {
 import useMyClubs from "../../hooks/useMyClubs";
 import usePendingClubJoins from "../../hooks/usePendingClubJoins";
 import { DEFAULT_FEED_IMAGE } from "../../utils/imageUtils";
+import { trackEvent } from "../../utils/analytics";
 
 function InfoItem({ icon: Icon, label, value }) {
   return (
@@ -87,6 +88,7 @@ export default function ClubDetailPage() {
     mutationFn: () => requestClubJoin(numericClubId, joinMessage.trim()),
 
     onSuccess: async (result) => {
+      trackEvent("club_join_requested");
       await recordResult(numericClubId, result.clubJoinStatus);
       queryClient.invalidateQueries({ queryKey: ["myClubs"] });
       queryClient.invalidateQueries({ queryKey: ["clubs"] });
